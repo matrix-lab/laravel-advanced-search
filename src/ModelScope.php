@@ -4,11 +4,23 @@ namespace MatrixLab\LaravelAdvancedSearch;
 
 class ModelScope
 {
-
+    /**
+     * 类名
+     *
+     * @var
+     */
     protected $className;
 
-    private $scopeName;
     /**
+     * scope 方法名称
+     *
+     * @var
+     */
+    private $scopeName;
+
+    /**
+     * 构造参数
+     *
      * @var array
      */
     private $args;
