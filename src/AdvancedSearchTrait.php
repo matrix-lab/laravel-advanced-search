@@ -38,7 +38,7 @@ trait AdvancedSearchTrait
     {
         unset($conditions['page']);
 
-        return static::getListQuery($conditions, $with, $selects, $withTrashed)->count((new static())->getKeyName());
+        return static::getListQuery($conditions, $with, $withTrashed)->count((new static())->getKeyName());
     }
 
     /**
