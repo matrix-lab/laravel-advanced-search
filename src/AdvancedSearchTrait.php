@@ -2,7 +2,6 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
-use Cache;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
