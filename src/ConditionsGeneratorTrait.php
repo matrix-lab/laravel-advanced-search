@@ -2,7 +2,6 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
-use App\Extensions\When;
 use Closure;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
@@ -133,7 +132,7 @@ trait ConditionsGeneratorTrait
     {
         // 对于 When 对象处理
         if ($item instanceof When) {
-            $key = $item->result();
+            $item = $item->result();
         }
 
         // 如果传递的是闭包或原生查询条件
