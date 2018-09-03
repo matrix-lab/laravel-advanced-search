@@ -84,6 +84,8 @@ trait AdvancedSearchTrait
      * @param bool         $withTrashed
      *
      * @return mixed
+     * @throws InternalErrorException
+     * @throws \ReflectionException
      */
     public static function getList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
     {
