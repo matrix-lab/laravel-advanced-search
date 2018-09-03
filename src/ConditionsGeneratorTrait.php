@@ -72,7 +72,7 @@ trait ConditionsGeneratorTrait
 
     protected function wheres()
     {
-        return collect([]);
+        return [];
     }
 
     /**
