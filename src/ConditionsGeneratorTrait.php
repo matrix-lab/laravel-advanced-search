@@ -184,6 +184,7 @@ trait ConditionsGeneratorTrait
             $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts'));
             array_forget($this->inputArgs, 'paginator.sorts');
         }
+        $sorts = collect($sorts)->filter();
         $orders = [];
         foreach ($sorts as $sort) {
             $orders = [
