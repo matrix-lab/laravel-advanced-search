@@ -395,4 +395,95 @@ trait AdvancedSearchTrait
 
         return $q;
     }
+
+    public function getAllColumns()
+    {
+        return (new static())->allColumns;
+    }
+
+    public static function getWithAndSelect($info)
+    {
+        $fields = $info->getFieldSelection(5);
+
+        return static::parseResolveInfoToWithColumns($fields);
+    }
+
+    /**
+     * 解析 with 关系和 selects 关系
+     *
+     * @param $fields
+     * @return array
+     * @throws \ReflectionException
+     */
+    protected static function parseResolveInfoToWithColumns($fields)
+    {
+        $fields = isset($fields['items']) ? $fields['items'] : $fields;
+
+        $columns         = [];
+        $withes          = [];
+        $modelReflection = new ReflectionClass(static::class);
+        foreach ($fields as $field => $isSingleField) {
+            if ($isSingleField === true // 常规字段
+                && !$modelReflection->hasMethod($field) // 没有这个关联关系
+                && in_array($field, (new static)->getAllColumns()) // 在字段列表里面
+            ) {
+                $columns[] = $field;
+            } elseif ($modelReflection->hasMethod($field)) {
+
+                //  尝试构建递归
+                //
+                //  $withes[] = $field.':'.join(',', static::getRelationSelect($field, static::parseResolveInfoToWithColumns($isSingleField)[1]));
+
+                //  list($subWith, $subSelect) = static::parseResolveInfoToWithColumns($isSingleField);
+                //
+                //  foreach ($subWith as $with) {
+                //      $withes[] = $field.'.'.$with;
+                //  }
+
+                // 目前支持嵌套3层查询
+
+                $relation = (new static)->{$field}(); // 关联模型对象
+                /** @var BaseModel $relation */
+                $relationModel      = $relation->getModel();
+                $relationReflection = new ReflectionClass($relationModel); // 关联模型对象的反射
+                $withColumns        = [];
+                foreach ($isSingleField as $subField => $isSingleSubField) {
+                    if ($isSingleSubField === true
+                        && !$relationReflection->hasMethod($subField) // 没有这个关联关系
+                        && in_array($subField, $relationModel->getAllColumns()) // 在字段列表里面
+                    ) {
+                        $withColumns[] = $subField;
+                    } elseif ($relationReflection->hasMethod($subField)) {
+                        $withes[] = $field.'.'.$subField.':'.join(',', static::parseResolveInfoToWithColumns($isSingleSubField)[1]);
+                    }
+                }
+
+                $withes[] = $field.':'.join(',', static::getRelationSelect($field, $withColumns));
+            }
+        }
+
+
+        return [$withes, $columns];
+    }
+
+    /**
+     * 获取关联关系里面的 select
+     *
+     * @param $relation
+     * @param $columns
+     * @return array
+     * @throws \ReflectionException
+     */
+    private static function getRelationSelect($relation, $columns)
+    {
+        $relation = (new static)->{$relation}();
+
+        if ((new ReflectionClass($relation))->hasMethod('getModel')) {
+            $relationModel = $relation->getModel();
+
+            return array_intersect($columns, $relationModel->getAllColumns());
+        }
+
+        return $columns;
+    }
 }
