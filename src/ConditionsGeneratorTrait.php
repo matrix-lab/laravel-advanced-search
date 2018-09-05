@@ -24,17 +24,6 @@ trait ConditionsGeneratorTrait
     ];
 
     /**
-     * 默认要从 inputArgs 中获取的内容（注意 ， 支持 . 的形式获取数组深层数据）
-     *
-     * @var array
-     */
-    protected $defaultOptionsField = [
-        'paginator.limit',
-        'paginator.sort',
-        'paginator.sorts',
-    ];
-
-    /**
      * 从外部输入的字段内容
      *
      * @var array
@@ -168,29 +157,31 @@ trait ConditionsGeneratorTrait
      */
     protected function handlePaginate()
     {
-        // 处理页码和分页
-        if (array_has($this->inputArgs, 'paginator.page')) {
-            $this->appendConditions([
-                'page' => $this->getInputArgs('paginator.page', []),
-            ]);
-            array_forget($this->inputArgs, 'paginator.page');
-        }
+        $pageParams = [
+            'paginator.page'  => 'page',
+            'page'            => 'page',
+            'paginator.limit' => 'page_size',
+            'page_size'       => 'page_size',
+        ];
 
-        if (array_has($this->inputArgs, 'paginator.limit')) {
-            $this->appendConditions([
-                'page_size' => $this->getInputArgs('paginator.limit', []),
-            ]);
-            array_forget($this->inputArgs, 'paginator.limit');
+        // 处理页码和分页
+        foreach ($pageParams as $key => $value) {
+            if (array_has($this->inputArgs, $key)) {
+                $this->appendConditions([
+                    $value => $this->getInputArgs($key),
+                ]);
+                array_forget($this->inputArgs, $key);
+            }
         }
 
         // 处理排序
         $sorts = [];
         if (array_has($this->inputArgs, 'paginator.sort')) {
-            $sorts = array_merge($sorts, [$this->getInputArgs('paginator.sort', [])]);
+            $sorts = array_merge($sorts, [$this->getInputArgs('paginator.sort')]);
             array_forget($this->inputArgs, 'paginator.sort');
         }
         if (array_has($this->inputArgs, 'paginator.sorts')) {
-            $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts', []));
+            $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts'));
             array_forget($this->inputArgs, 'paginator.sorts');
         }
         $orders = [];
