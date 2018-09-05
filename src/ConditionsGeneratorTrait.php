@@ -235,8 +235,8 @@ trait ConditionsGeneratorTrait
     protected function isVaildInput($requestKey)
     {
         return array_has($this->inputArgs, $requestKey)
-            && array_has($this->inputArgs, $requestKey) !== null
-            && array_has($this->inputArgs, $requestKey) !== '';
+            && array_get($this->inputArgs, $requestKey) !== null
+            && array_get($this->inputArgs, $requestKey) !== '';
     }
 
     /**
