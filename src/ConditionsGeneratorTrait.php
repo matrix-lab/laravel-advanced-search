@@ -23,13 +23,6 @@ trait ConditionsGeneratorTrait
         'wheres' => [],
     ];
 
-    protected $pageAlias = [
-        'paginator.page'  => 'page',
-        'page'            => 'page',
-        'paginator.limit' => 'page_size',
-        'page_size'       => 'page_size',
-    ];
-
     /**
      * 从外部输入的字段内容
      *
@@ -157,6 +150,16 @@ trait ConditionsGeneratorTrait
         return [$field => $value];
     }
 
+    protected function getPageAlias()
+    {
+        return [
+            'paginator.page'  => 'page',
+            'page'            => 'page',
+            'paginator.limit' => 'page_size',
+            'page_size'       => 'page_size',
+        ];
+    }
+
     /**
      * 生成分页的参数
      *
@@ -165,7 +168,7 @@ trait ConditionsGeneratorTrait
     protected function handlePaginate()
     {
         // 处理页码和分页
-        foreach ($this->pageAlias as $key => $value) {
+        foreach ($this->getPageAlias() as $key => $value) {
             if (array_has($this->inputArgs, $key)) {
                 $this->appendConditions([
                     $value => $this->getInputArgs($key),
