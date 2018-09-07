@@ -23,6 +23,13 @@ trait ConditionsGeneratorTrait
         'wheres' => [],
     ];
 
+    protected $pageAlias = [
+        'paginator.page'  => 'page',
+        'page'            => 'page',
+        'paginator.limit' => 'page_size',
+        'page_size'       => 'page_size',
+    ];
+
     /**
      * 从外部输入的字段内容
      *
@@ -157,15 +164,8 @@ trait ConditionsGeneratorTrait
      */
     protected function handlePaginate()
     {
-        $pageParams = [
-            'paginator.page'  => 'page',
-            'page'            => 'page',
-            'paginator.limit' => 'page_size',
-            'page_size'       => 'page_size',
-        ];
-
         // 处理页码和分页
-        foreach ($pageParams as $key => $value) {
+        foreach ($this->pageAlias as $key => $value) {
             if (array_has($this->inputArgs, $key)) {
                 $this->appendConditions([
                     $value => $this->getInputArgs($key),
@@ -184,9 +184,12 @@ trait ConditionsGeneratorTrait
             $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts'));
             array_forget($this->inputArgs, 'paginator.sorts');
         }
-        $sorts = collect($sorts)->filter();
+        $sorts  = collect($sorts)->filter();
         $orders = [];
         foreach ($sorts as $sort) {
+            if (!starts_with($sort, ['+', '-'])) {
+                continue;
+            }
             $orders = [
                 substr($sort, 1) => $sort[0] == '+' ? 'asc' : 'desc',
             ];
