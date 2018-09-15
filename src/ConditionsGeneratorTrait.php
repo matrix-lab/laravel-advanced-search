@@ -7,15 +7,14 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
 
 /**
- * 条件搜索的条件生成器
+ * 条件搜索的条件生成器.
  *
  * Trait ConditionsGeneratorTrait
- * @package App\Models\AbleTrait
  */
 trait ConditionsGeneratorTrait
 {
     /**
-     * 需要输出的 conditions
+     * 需要输出的 conditions.
      *
      * @var array
      */
@@ -24,7 +23,7 @@ trait ConditionsGeneratorTrait
     ];
 
     /**
-     * 从外部输入的字段内容
+     * 从外部输入的字段内容.
      *
      * @var array
      */
@@ -34,6 +33,7 @@ trait ConditionsGeneratorTrait
      * 追加条件.
      *
      * @param $appendItems
+     *
      * @return static
      */
     public function appendConditions($appendItems)
@@ -50,6 +50,7 @@ trait ConditionsGeneratorTrait
 
     /**
      * @param array $inputArgs
+     *
      * @return static
      */
     public function setInputArgs(array $inputArgs)
@@ -60,6 +61,11 @@ trait ConditionsGeneratorTrait
     }
 
     protected function wheres()
+    {
+        return [];
+    }
+
+    protected function order()
     {
         return [];
     }
@@ -85,6 +91,7 @@ trait ConditionsGeneratorTrait
      * 获取 where 查询条件.
      *
      * @param $args
+     *
      * @return Collection
      */
     public function getConditions($args)
@@ -111,10 +118,11 @@ trait ConditionsGeneratorTrait
     }
 
     /**
-     * 处理 where 数组内容
+     * 处理 where 数组内容.
      *
      * @param $item
      * @param $key
+     *
      * @return array
      */
     private function generateWhereKeyValue($item, $key)
@@ -161,7 +169,7 @@ trait ConditionsGeneratorTrait
     }
 
     /**
-     * 生成分页的参数
+     * 生成分页的参数.
      *
      * @return $this
      */
@@ -188,14 +196,13 @@ trait ConditionsGeneratorTrait
             array_forget($this->inputArgs, 'paginator.sorts');
         }
         $sorts  = collect($sorts)->filter();
+        $sorts  = $sorts->isEmpty() ? collect($this->order()) : $sorts;
         $orders = [];
         foreach ($sorts as $sort) {
             if (!starts_with($sort, ['+', '-'])) {
                 continue;
             }
-            $orders = [
-                substr($sort, 1) => $sort[0] == '+' ? 'asc' : 'desc',
-            ];
+            $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
         }
         $this->appendConditions(['order' => $orders]);
 
@@ -203,7 +210,7 @@ trait ConditionsGeneratorTrait
     }
 
     /**
-     * 处理输入的参数（根据需要可以重写该方法）
+     * 处理输入的参数（根据需要可以重写该方法）.
      *
      * @return $this
      */
@@ -220,10 +227,11 @@ trait ConditionsGeneratorTrait
     }
 
     /**
-     * 获取参数
+     * 获取参数.
      *
      * @param null $key
      * @param null $default
+     *
      * @return array|mixed
      */
     public function getInputArgs($key = null, $default = null)
