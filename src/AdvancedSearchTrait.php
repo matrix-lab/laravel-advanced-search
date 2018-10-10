@@ -194,8 +194,9 @@ trait AdvancedSearchTrait
 
                     // 关联查询
                     if (str_contains($field, '.')) {
+                        list($relation, $field) = explode('.', $field);
                         $query->whereHas(
-                            camel_case(explode('.', $field)[0]),
+                            camel_case($relation),
                             function ($q) use ($operatorAndValue, $mixType, $field) {
                                 self::makeComboQueryPro($q, $field, $mixType, $operatorAndValue);
                             }
