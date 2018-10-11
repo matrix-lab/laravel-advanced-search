@@ -22,6 +22,193 @@
 
 ## 使用
 
+### 丰富的传参内容
+
+#### fireInput
+如果传递的参数内容并不能满足需要，还需要进行一些简单的加工，可以这样做：
+
+```php
+return [
+	'name.like' => $this->fireInput('name', function ($value) {
+						 return $value.'%';
+				   })
+];
+```
+
+这样就能通过 `?name=张` 来获取所有姓张的员工。
+
+`fireInput` 方法
+ 第一个参数：前端的传参 key
+ 第二个参数：处理这个传参的内容
+ 
+`fireInput` 行为
+如果不能够获取前端传参，那么直接返回 null ，也就是后续处理中会过滤都这条 where 规则
+如果能够获取值，那么将获取值传递到闭包，可以自由的进行处理
+
+#### appendInput
+
+如果仅仅是想在获取的参数值后面添加数据，可以这样来：
+
+```php
+return [
+	'name.like' => $this->appendInput('name', '%')
+];
+```
+
+但是你可能会问，为什么不获取数据之后直接添加 `%` ？
+
+```php
+return [
+	'name.like' => $this->input('name').'%'
+];
+```
+
+第二种写法是错误的，因为可能返回结果是这样的，当前端没有传参时，结果如下：
+
+```php
+return [
+	'name.like' => '%'
+];
+```
+
+这样会按照值为 `%` 进行搜索。
+
+#### when
+
+>当这个人是被禁用户的时候，我们会额外添加一个搜索条件，不让该用户搜索到任何内容
+
+```php
+return [
+    'id' => $this->when(user()->locked_at, 0),
+];
+```
+
+这里会根据 `user()->locked_at` 值进行判断，得到的结果如下
+
+```php
+// user()->locked_at 值存在
+return [
+    'id' => 0,
+];
+
+// user()->locked_at 值不存在
+return [
+    'id' => null,
+];
+```
+
+根据之前约定的，如果 `键值` 为空值（包括空字符串，但不包括 0 ），这个条件就不会生效
+
+`when` 还有以下用法，满足你的各种需求：
+```php
+'your_field_in_mysql' => $this->when($bool, function() {
+        # 这里你可以写你的逻辑，最后返回值即可
+        return $this->your_field_in_request/2;
+        # 也可以调用一些方法
+        # 如果是局部方法，能用 private 就不要用 protected 更不要用 public 定义
+        return $this->yourMethodToTransform($value);
+
+        # 同理，返回 null 的时候，这行条件不生效
+        return null;
+    }),
+```
+
+#### RAW
+
+原生的 DB::raw 我们也要支持，这个不需要别的，只需要你的语句，只要你会 `sql`，就可以写
+
+```php
+return [
+    DB::raw('1=0'),
+];
+```
+
+#### 闭包
+
+如果你的查询*特别*复杂，以上各种形式都满足不了，那么你可以祭出终极大招了
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+
+return [
+    function (Builder $q) {
+        $q->whereHas('role');
+    },
+];
+```
+
+闭包只有一个传参，`$q` 为 `Illuminate\Database\Eloquent\Builder`。看到了这个类，你应该知道如何去使用了吧！
+
+这个就是原生的 `laravel` 查询对象，把所有你需要的查询放里面吧！剩下不多说，自由发挥去吧！
+
+#### and or
+
+查询的时候，经常会有一些逻辑，他们之间可能是 and 或者是 or
+
+```php
+return [
+    'created_at' => [
+        'gt' => '2017-09-01',
+        'lt' => '2017-09-30'
+    ],
+];
+```
+
+默认 `created_at` 的 `大于小于` 操作是 `and` 关联，
+
+如果需要 `or` 操作，可以这样写
+
+```php
+return [
+    'id' => [
+        'in'  => [23, 24, 30],
+        'lt'  => 25,
+        'mix' => 'or'
+    ],
+];
+```
+
+
+#### 自定义的 laravel 本地作用域
+
+```php
+return [
+    new ModelScope('listByUser'),
+];
+```
+
+上面的代码会在执行的时候，会调用模型的 scopeListByUser 方法。
+
+如果需要传参：
+
+```php
+return [
+    new ModelScope('older', 60),
+];
+```
+
+上面的代码等同于
+
+```php
+function (Builder $q) {
+    $q->older(60);
+},
+```
+
+#### When 对象操作
+
+```php
+return [
+'id'  => When::make(true)->success('34'),
+'url' => When::make(false)->success('http://www.baidu.com')->fail('http://www.google.com'),
+];
+```
+
+执行的结果为
+```php
+where id = 34
+where url='http://www.google.com'
+```
 
 ## 贡献
 
