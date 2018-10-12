@@ -3,12 +3,19 @@
 namespace MatrixLab\LaravelAdvancedSearch;
 
 use ReflectionClass;
+use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 trait WithAndSelectForGraphQLGeneratorTrait
 {
     public function getAllColumns()
     {
-        return (new static())->allColumns;
+        $allColumns = (new static())->allColumns;
+
+        if(empty($allColumns)) {
+            throw new InternalErrorException(" SQL 的 select 内容为空，请检查 ".static::class." 中是否有 \$allColumns 字段，如果没有，请执行 php artisan make:models-columns 生成。");
+        }
+
+        return $allColumns;
     }
 
     public static function getWithAndSelect($info)
