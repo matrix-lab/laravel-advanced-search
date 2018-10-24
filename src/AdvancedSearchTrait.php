@@ -4,7 +4,6 @@ namespace MatrixLab\LaravelAdvancedSearch;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
 use ReflectionClass;
@@ -32,6 +31,7 @@ trait AdvancedSearchTrait
      * @param bool  $withTrashed
      *
      * @return mixed
+     *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
@@ -50,6 +50,7 @@ trait AdvancedSearchTrait
      * @param bool         $withTrashed
      *
      * @return Builder
+     *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
@@ -85,6 +86,7 @@ trait AdvancedSearchTrait
      * @param bool         $withTrashed
      *
      * @return mixed
+     *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
@@ -94,13 +96,24 @@ trait AdvancedSearchTrait
 
         // 根据请求中是否存在 page 参数来返回 collection | paginator
         if (array_has($conditions, 'page')) {
-            $pageSize = Request::has('pageSize') ? Request::input('pageSize') : config('erp.page_size');
-            $pageSize = Request::has('page_size') ? Request::input('page_size') : $pageSize;
-            $pageSize = array_has($conditions, 'pageSize') ? $conditions['pageSize'] : $pageSize;
-            $pageSize = array_has($conditions, 'page_size') ? $conditions['page_size'] : $pageSize;
-
             /* @var Builder $query */
-            return $query->paginate((int)$pageSize, $selects, 'page', $conditions['page'])->appends(Request::except([
+            return $query->paginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(Request::except([
+                'page',
+            ]));
+        } else {
+            /* @var Builder $query */
+            return $query->select($selects)->get();
+        }
+    }
+
+    public static function getSimpleList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
+    {
+        $query = static::getListQuery($conditions, $with, $withTrashed);
+
+        // 根据请求中是否存在 page 参数来返回 collection | paginator
+        if (array_has($conditions, 'page')) {
+            /* @var Builder $query */
+            return $query->simplePaginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(Request::except([
                 'page',
             ]));
         } else {
@@ -118,6 +131,7 @@ trait AdvancedSearchTrait
      * @param bool  $withTrashed
      *
      * @return mixed
+     *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
@@ -179,6 +193,7 @@ trait AdvancedSearchTrait
      * @param         $conditions
      *
      * @return mixed
+     *
      * @throws \ReflectionException
      * @throws InternalErrorException
      */
@@ -231,7 +246,7 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * 构造 where 查询
+     * 构造 where 查询.
      *
      * @param $q
      * @param $field
@@ -241,21 +256,21 @@ trait AdvancedSearchTrait
     private static function makeComboQueryPro($q, $field, $mixType, $operatorAndValue)
     {
         // where 类型
-        $whereType = $mixType == 'and' ? 'where' : 'orWhere';
+        $whereType = 'and' == $mixType ? 'where' : 'orWhere';
 
         // 构造查询
         foreach ($operatorAndValue as $operator => $value) {
-            if ($operator == 'in') {
+            if ('in' == $operator) {
                 if ((is_array($value) || $value instanceof Collection) && !empty($value)) {
                     $q->{"{$whereType}In"}($field, $value);
                 }
-            } elseif ($operator == 'not_in') {
+            } elseif ('not_in' == $operator) {
                 if (is_array($value) && !empty($value)) {
                     $q->{"{$whereType}NotIn"}($field, $value);
                 }
-            } elseif ($operator == 'is') {
+            } elseif ('is' == $operator) {
                 $q->{"{$whereType}null"}($field);
-            } elseif (snake_case($operator) == 'is_not') {
+            } elseif ('is_not' == snake_case($operator)) {
                 $q->{"{$whereType}NotNull"}($field);
             } else {
                 $q->{$whereType}($field, self::convertOperator($operator), $value);
@@ -319,14 +334,14 @@ trait AdvancedSearchTrait
 
     private static function convertOperator($operator)
     {
-        $operator = $operator == 'eq' ? '=' : $operator;
-        $operator = $operator == 'ne' ? '<>' : $operator;
-        $operator = $operator == 'gt' ? '>' : $operator;
-        $operator = $operator == 'gte' ? '>=' : $operator;
-        $operator = $operator == 'ge' ? '>=' : $operator;
-        $operator = $operator == 'lt' ? '<' : $operator;
-        $operator = $operator == 'lte' ? '<=' : $operator;
-        $operator = $operator == 'le' ? '<=' : $operator;
+        $operator = 'eq' == $operator ? '=' : $operator;
+        $operator = 'ne' == $operator ? '<>' : $operator;
+        $operator = 'gt' == $operator ? '>' : $operator;
+        $operator = 'gte' == $operator ? '>=' : $operator;
+        $operator = 'ge' == $operator ? '>=' : $operator;
+        $operator = 'lt' == $operator ? '<' : $operator;
+        $operator = 'lte' == $operator ? '<=' : $operator;
+        $operator = 'le' == $operator ? '<=' : $operator;
 
         return $operator ?? '=';
     }
@@ -368,10 +383,25 @@ trait AdvancedSearchTrait
         $offset = array_has($conditions, 'offset') ? $conditions['offiset'] : 0;
         $limit  = array_has($conditions, 'limit') ? $conditions['limit'] : 0;
         if ($limit > 0) {
-            $query->skip((int)$offset)->take((int)$limit);
+            $query->skip((int) $offset)->take((int) $limit);
         }
 
         return $query;
+    }
+
+    /**
+     * @param $conditions
+     *
+     * @return array|\Illuminate\Config\Repository|mixed|null|string
+     */
+    private static function getPageSize($conditions)
+    {
+        $pageSize = Request::has('pageSize') ? Request::input('pageSize') : config('erp.page_size');
+        $pageSize = Request::has('page_size') ? Request::input('page_size') : $pageSize;
+        $pageSize = array_has($conditions, 'pageSize') ? $conditions['pageSize'] : $pageSize;
+        $pageSize = array_has($conditions, 'page_size') ? $conditions['page_size'] : $pageSize;
+
+        return $pageSize;
     }
 
     /**
