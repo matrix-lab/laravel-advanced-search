@@ -104,7 +104,7 @@ EOF;
 
                     $modelContent = file_get_contents($fileName);
                     // Remove allColumns
-                    $modelContent = preg_replace('/\s+p.+\$allColumns[\s\S]+\]\;/', '', $modelContent);
+                    $modelContent = preg_replace('/\s+p.+\$allColumns[\s\S]+?\]\;/', '', $modelContent);
 
                     // Rewrite model file
                     file_put_contents($fileName, preg_replace('/\n+\}/', $replacedContent, $modelContent));
