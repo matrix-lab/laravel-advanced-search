@@ -65,7 +65,8 @@ trait WithAndSelectForGraphQLGeneratorTrait
                     if (static::canBeSelected($relationModel, $subField)) {
                         $withColumns[] = $subField;
                     } elseif ($relationReflection->hasMethod($subField)) {
-                        $withes[] = $field.'.'.$subField.':'.join(',', static::parseResolveInfoToWithColumns($isSingleSubField)[1]);
+                        $subRelationModelInstance = $relationReflection->newInstance()->{$subField}()->getModel();
+                        $withes[] = $field.'.'.$subField.':'.join(',', ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1]);
                     }
                 }
 
