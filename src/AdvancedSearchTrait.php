@@ -380,7 +380,7 @@ trait AdvancedSearchTrait
      */
     private static function offsetSearch($query, $conditions)
     {
-        $offset = array_has($conditions, 'offset') ? $conditions['offiset'] : 0;
+        $offset = array_has($conditions, 'offset') ? $conditions['offset'] : 0;
         $limit  = array_has($conditions, 'limit') ? $conditions['limit'] : 0;
         if ($limit > 0) {
             $query->skip((int) $offset)->take((int) $limit);

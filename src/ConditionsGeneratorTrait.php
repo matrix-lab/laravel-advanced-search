@@ -84,7 +84,9 @@ trait ConditionsGeneratorTrait
             return null;
         }
 
-        return $fire($this->getInputArgs($requestKey));
+        $inputArg = $this->getInputArgs($requestKey);
+
+        return $fire ? $fire($inputArg) : $inputArg;
     }
 
     /**
