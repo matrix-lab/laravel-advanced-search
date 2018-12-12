@@ -349,7 +349,7 @@ trait AdvancedSearchTrait
     /**
      * 排序功能.
      *
-     * @param $query
+     * @param Builder $query
      * @param $conditions
      *
      * @return mixed
@@ -364,7 +364,12 @@ trait AdvancedSearchTrait
         }
 
         foreach ($order as $field => $direction) {
-            $query->orderBy($field, $direction);
+            if (is_string($direction)) {
+                $query->orderBy($field, $direction);
+            }
+            if ($direction instanceof Expression) {
+                $query->orderByRaw($direction);
+            }
         }
 
         return $query;

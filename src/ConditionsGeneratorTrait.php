@@ -198,13 +198,19 @@ trait ConditionsGeneratorTrait
             array_forget($this->inputArgs, 'paginator.sorts');
         }
         $sorts  = collect($sorts)->filter();
-        $sorts  = $sorts->isEmpty() ? collect($this->order()) : $sorts;
+        $sorts  = collect($this->order())->merge($sorts);
         $orders = [];
         foreach ($sorts as $sort) {
+            if (is_string($sort)) {
             if (!starts_with($sort, ['+', '-'])) {
                 continue;
             }
             $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
+        }
+
+            if ($sort instanceof Expression) {
+                $orders[] = $sort;
+            }
         }
         $this->appendConditions(['order' => $orders]);
 
