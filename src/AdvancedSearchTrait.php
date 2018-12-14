@@ -291,7 +291,7 @@ trait AdvancedSearchTrait
     {
         $newConditions = [];
 
-        foreach ($conditions['wheres'] as $key => $item) {
+        foreach (array_get($conditions, 'wheres', []) as $key => $item) {
             if (is_int($key)) {
                 // 如果是闭包的话，直接 push ，不做处理，构造时进行处理
                 if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
