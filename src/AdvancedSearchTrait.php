@@ -106,6 +106,15 @@ trait AdvancedSearchTrait
         }
     }
 
+    /**
+     * @param array $conditions
+     * @param null $with
+     * @param array $selects
+     * @param bool $withTrashed
+     * @return \Illuminate\Contracts\Pagination\Paginator|Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @throws InternalErrorException
+     * @throws \ReflectionException
+     */
     public static function getSimpleList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
     {
         $query = static::getListQuery($conditions, $with, $withTrashed);
