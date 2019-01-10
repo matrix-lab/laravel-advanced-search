@@ -26,12 +26,12 @@ class PaginatorField
     )
     {
         $info = [
-            'count'        => $root->count(),
-            'currentPage'  => $root->currentPage(),
-            'firstItem'    => $root->firstItem(),
-            'hasMorePages' => $root->hasPages(),
-            'lastItem'     => $root->lastItem(),
-            'perPage'      => $root->perPage(),
+            'count'       => $root->count(),
+            'currentPage' => $root->currentPage(),
+            'firstItem'   => $root->firstItem(),
+            'hasPages'    => $root->hasPages(),
+            'lastItem'    => $root->lastItem(),
+            'perPage'     => $root->perPage(),
         ];
 
         if ($root instanceof LengthAwarePaginator) {
