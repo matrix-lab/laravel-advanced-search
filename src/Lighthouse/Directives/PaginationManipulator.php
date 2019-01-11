@@ -55,14 +55,14 @@ class PaginationManipulator extends BasePaginationManipulator
     public static function registerPaginator(FieldDefinitionNode $fieldDefinition, ObjectTypeDefinitionNode $parentType, DocumentAST $documentAST, int $defaultCount = null): DocumentAST
     {
         $fieldTypeName = ASTHelper::getUnderlyingTypeName($fieldDefinition);
-        $paginatorTypeName = "{$fieldTypeName}Paginator";
+        $paginatorTypeName = "{$fieldTypeName}Pagination";
         $paginatorFieldClassName = addslashes(PaginatorField::class);
 
         // register paginator.
         $paginatorType = PartialParser::objectTypeDefinition("
             type $paginatorTypeName {
+                items: [$fieldTypeName] @field(resolver: \"{$paginatorFieldClassName}@dataResolver\")
                 cursor: PaginationCursor! @field(resolver: \"{$paginatorFieldClassName}@paginatorInfoResolver\")
-                items: [$fieldTypeName!]! @field(resolver: \"{$paginatorFieldClassName}@dataResolver\")
             }
         ");
 
