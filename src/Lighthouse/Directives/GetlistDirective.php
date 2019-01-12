@@ -189,7 +189,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
             $model = ASTHelper::getUnderlyingTypeName($this->definitionNode);
 
             // Cut the added type suffix to get the base model class name
-            $model = Str::before($model, 'Paginator');
+            $model = Str::before($model, 'Pagination');
             $model = Str::before($model, 'Connection');
         }
 
