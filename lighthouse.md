@@ -2,7 +2,7 @@
 
 ## 安装
 
-*支持 Lighthouse 3.0 及以上版本*
+*仅支持 Lighthouse 3.0 及以上版本，因为 3.0 开始支持扩展开发，并且有不少新特性，非常值得升级*
 
 加入该依赖包后，在 config/lighthouse.php 配置文件中，找到 namespaces 配置，添加一行 `'directives' => ['MatrixLab\\LaravelAdvancedSearch\\Lighthouse\\Directives']` 即可
 
