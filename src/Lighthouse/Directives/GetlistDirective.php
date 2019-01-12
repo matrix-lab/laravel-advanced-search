@@ -91,6 +91,10 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
         return $value->setResolver(
             function ($root, array $args) use ($value) {
                 $this->inputArgs = $args;
+                $args            = collect([
+                    'paginator.sort'  => $this->directiveArgValue('sort'),
+                    'paginator.sorts' => $this->directiveArgValue('sorts'),
+                ])->merge($args)->filter()->toArray();
 
                 /** @var BaseModel $model */
                 $model = $this->getPaginatorModel();
@@ -111,30 +115,6 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
             ->except('paginator')
             ->filter()
             ->toArray();
-    }
-
-    /**
-     * @param array $resolveArgs
-     * @param int $page
-     * @param int $perPage
-     *
-     * @param mixed $order
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     * @throws DirectiveException
-     */
-    protected function getPaginatedResults(array $resolveArgs, int $page, int $perPage, $order = '')
-    {
-        /** @var BaseModel $model */
-        $model      = $this->getPaginatorModel();
-        $conditions = [
-            'page'      => $page,
-            'page_size' => $perPage,
-        ];
-        if ($order) {
-            $conditions['order'] = $order;
-        }
-
-        return $model::getGraphQLPaginator($conditions, $resolveArgs[3]);
     }
 
     /**
