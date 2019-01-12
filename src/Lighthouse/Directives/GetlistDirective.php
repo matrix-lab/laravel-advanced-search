@@ -114,36 +114,6 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
     }
 
     /**
-     * Parse orders from
-     *
-     * @param $args
-     * @return array
-     */
-    private function parseOrders($args)
-    {
-        $sorts       = array_merge([array_get($args, 'paginator.sort')], array_get($args, 'paginator.sorts', []));
-        $sorts       = collect($sorts)->filter();
-        $defaultSort = $this->directiveArgValue('sort', []);
-
-        $sorts  = collect($defaultSort)->merge($sorts);
-        $orders = [];
-        foreach ($sorts as $sort) {
-            if (is_string($sort)) {
-                if (!starts_with($sort, ['+', '-'])) {
-                    continue;
-                }
-                $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
-            }
-
-            if ($sort instanceof Expression) {
-                $orders[] = $sort;
-            }
-        }
-
-        return $orders;
-    }
-
-    /**
      * @param array $resolveArgs
      * @param int $page
      * @param int $perPage

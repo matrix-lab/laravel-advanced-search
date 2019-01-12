@@ -2,7 +2,29 @@
 
 ## 安装
 
+*支持 Lighthouse 3.0 及以上版本*
+
 加入该依赖包后，在 config/lighthouse.php 配置文件中，找到 namespaces 配置，添加一行 `'directives' => ['MatrixLab\\LaravelAdvancedSearch\\Lighthouse\\Directives']` 即可
+
+添加 Model 相关的依赖 trait，如下
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use MatrixLab\LaravelAdvancedSearch\AdvancedSearchTrait;
+use MatrixLab\LaravelAdvancedSearch\WithAndSelectForGraphQLGeneratorTrait;
+
+class BaseModel extends Model
+{
+    use AdvancedSearchTrait, WithAndSelectForGraphQLGeneratorTrait;
+
+```
+
+- WithAndSelectForGraphQLGeneratorTrait 是针对 GraphQL 进行性能优化的 trait ，主要作用是根据前端请求的结构内容，最小化查询的 select 内容，以及自动加载关联模型
+- AdvancedSearchTrait 是 getlist 的基础方法 trait 
 
 ## 使用
 
