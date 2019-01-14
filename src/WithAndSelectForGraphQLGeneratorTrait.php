@@ -87,11 +87,11 @@ trait WithAndSelectForGraphQLGeneratorTrait
                 $relationReflection = new ReflectionClass($relationModel); // 关联模型对象的反射
                 $withColumns        = [];
                 foreach ($isSingleField as $subField => $isSingleSubField) {
-                    if (static::canBeSelected($relationModel, $subField)) {
-                        $withColumns[] = $subField;
-                    } elseif ($relationReflection->hasMethod($subField)) {
+                    if ($relationReflection->hasMethod($subField)) {
                         $subRelationModelInstance = $relationReflection->newInstance()->{$subField}()->getModel();
                         $withes[]                 = $field.'.'.$subField.':'.join(',', ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1]);
+                    } elseif (static::canBeSelected($relationModel, $subField)) {
+                        $withColumns[] = $subField;
                     }
                 }
 
