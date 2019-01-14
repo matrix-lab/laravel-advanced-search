@@ -3,6 +3,7 @@
 namespace MatrixLab\LaravelAdvancedSearch;
 
 use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use ReflectionClass;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
@@ -18,8 +19,6 @@ trait WithAndSelectForGraphQLGeneratorTrait
     {
         $fields = $info->getFieldSelection(5);
 
-
-        dd(static::getWithAndSelect($info));
         // 如果要返回分页
         if (array_has($fields, 'cursor.total')) {
             // 如果有查询内容的话
@@ -102,12 +101,13 @@ trait WithAndSelectForGraphQLGeneratorTrait
                     }
                 }
 
-                $withes[] = empty($withColumns) ? $field : $field.':'.join(',', static::getRelationSelect($field, $withColumns));
+                $withColumns = static::getRelationSelect($field, $withColumns);
+
+                $withes[] = empty($withColumns) ? $field : $field.':'.join(',', $withColumns);
             }
         }
 
-
-        return [$withes, $columns];
+        return [$withes, empty($columns) ? ['*'] : $columns];
     }
 
     private static function canBeSelected($model, $field)
@@ -129,6 +129,9 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
         if ((new ReflectionClass($relation))->hasMethod('getModel')) {
             $relationModel = $relation->getModel();
+            if (!(new ReflectionClass(static::class))->hasProperty('allColumns')) {
+                return ['*'];
+            }
 
             return array_intersect($columns, $relationModel->getAllColumns());
         }
