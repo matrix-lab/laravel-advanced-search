@@ -187,6 +187,10 @@ trait ConditionsGeneratorTrait
             }
         }
 
+        // 设置默认的页数和页码
+        data_fill($this->conditions, 'page', 1);
+        data_fill($this->conditions, 'page_size', 15);
+
         // 处理排序
         $sorts = [];
         if (array_has($this->inputArgs, 'paginator.sort')) {
