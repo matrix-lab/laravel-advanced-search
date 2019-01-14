@@ -35,7 +35,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
     public function getAllColumns()
     {
-        if (!(new ReflectionClass(static::class))->hasProperty('allColumns')) {
+        if(!self::hasAllCollumns(new static)) {
             return ['*'];
         }
 
@@ -89,7 +89,8 @@ trait WithAndSelectForGraphQLGeneratorTrait
                 foreach ($isSingleField as $subField => $isSingleSubField) {
                     if ($relationReflection->hasMethod($subField)) {
                         $subRelationModelInstance = $relationReflection->newInstance()->{$subField}()->getModel();
-                        $withes[]                 = $field.'.'.$subField.':'.join(',', ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1]);
+                        $subRelationWithColumns   = ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1];
+                        $withes[]                 = $subRelationWithColumns === ['*'] ? $field.'.'.$subField : $field.'.'.$subField.':'.join(',', $subRelationWithColumns);
                     } elseif (static::canBeSelected($relationModel, $subField)) {
                         $withColumns[] = $subField;
                     }
@@ -106,9 +107,29 @@ trait WithAndSelectForGraphQLGeneratorTrait
         return [$withes, empty($columns) ? ['*'] : $columns];
     }
 
+    /**
+     * 是否能够构成 select 字段
+     *
+     * @param $model
+     * @param $field
+     * @return bool
+     * @throws \ReflectionException
+     */
     private static function canBeSelected($model, $field)
     {
-        return in_array($field, $model->getAllColumns()) || $model->getAllColumns() === ['*'];
+        return self::hasAllCollumns($model) && in_array($field, $model->getAllColumns());
+    }
+
+    /**
+     * 对象是否有 allColumns 属性
+     *
+     * @param $model
+     * @return bool
+     * @throws \ReflectionException
+     */
+    private static function hasAllCollumns($model)
+    {
+        return (new ReflectionClass($model))->hasProperty('allColumns');
     }
 
     /**
