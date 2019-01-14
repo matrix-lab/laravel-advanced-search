@@ -18,6 +18,8 @@ trait WithAndSelectForGraphQLGeneratorTrait
     {
         $fields = $info->getFieldSelection(5);
 
+
+        dd(static::getWithAndSelect($info));
         // 如果要返回分页
         if (array_has($fields, 'cursor.total')) {
             // 如果有查询内容的话
@@ -35,9 +37,13 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
     public function getAllColumns()
     {
+        if (!(new ReflectionClass(static::class))->hasProperty('allColumns')) {
+            return ['*'];
+        }
+
         $allColumns = (new static())->allColumns;
 
-        if(empty($allColumns)) {
+        if (empty($allColumns)) {
             throw new InternalErrorException(" SQL 的 select 内容为空，请检查 ".static::class." 中是否有 \$allColumns 字段，如果没有，请执行 php artisan make:models-columns 生成。");
         }
 
@@ -92,11 +98,11 @@ trait WithAndSelectForGraphQLGeneratorTrait
                         $withColumns[] = $subField;
                     } elseif ($relationReflection->hasMethod($subField)) {
                         $subRelationModelInstance = $relationReflection->newInstance()->{$subField}()->getModel();
-                        $withes[] = $field.'.'.$subField.':'.join(',', ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1]);
+                        $withes[]                 = $field.'.'.$subField.':'.join(',', ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1]);
                     }
                 }
 
-                $withes[] = $field.':'.join(',', static::getRelationSelect($field, $withColumns));
+                $withes[] = empty($withColumns) ? $field : $field.':'.join(',', static::getRelationSelect($field, $withColumns));
             }
         }
 
@@ -106,7 +112,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
     private static function canBeSelected($model, $field)
     {
-        return in_array($field, $model->getAllColumns());
+        return in_array($field, $model->getAllColumns()) || $model->getAllColumns() !== ['*'];
     }
 
     /**
