@@ -108,7 +108,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
     private static function canBeSelected($model, $field)
     {
-        return in_array($field, $model->getAllColumns()) || $model->getAllColumns() !== ['*'];
+        return in_array($field, $model->getAllColumns()) || $model->getAllColumns() === ['*'];
     }
 
     /**
