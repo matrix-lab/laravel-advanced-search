@@ -19,19 +19,18 @@ trait WithAndSelectForGraphQLGeneratorTrait
     {
         $fields = $info->getFieldSelection(5);
 
-        // 如果要返回分页
-        if (array_has($fields, 'cursor.total')) {
-            // 如果有查询内容的话
-            if (array_has($fields, 'items')) {
-                return static::getList($conditions, ...static::getWithAndSelect($info));
-            } else {
-                // 如果没有查询内容，则认为是只获取分页
-                return new LengthAwarePaginator([], static::getCount($conditions), 10);
-            }
-        } else {
-            // 返回简单分页
+        // 如果没有 total 则返回简单分页
+        if (!array_has($fields, 'cursor.total')) {
             return static::getSimpleList($conditions, ...static::getWithAndSelect($info));
         }
+
+        // 如果有查询内容的话
+        if (array_has($fields, 'items')) {
+            return static::getList($conditions, ...static::getWithAndSelect($info));
+        }
+
+        // 如果没有查询内容，则认为是只获取分页
+        return new LengthAwarePaginator([], static::getCount($conditions), 10);
     }
 
     public function getAllColumns()
@@ -71,12 +70,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
         $withes          = [];
         $modelReflection = new ReflectionClass(static::class);
         foreach ($fields as $field => $isSingleField) {
-            if (static::canBeSelected((new static), $field)) {
-                $columns[] = $field;
-            } elseif ($modelReflection->hasMethod($field)) {
-
-                //  尝试构建递归
-                //
+            if ($modelReflection->hasMethod($field)) {
                 //  $withes[] = $field.':'.join(',', static::getRelationSelect($field, static::parseResolveInfoToWithColumns($isSingleField)[1]));
 
                 //  list($subWith, $subSelect) = static::parseResolveInfoToWithColumns($isSingleField);
@@ -104,6 +98,8 @@ trait WithAndSelectForGraphQLGeneratorTrait
                 $withColumns = static::getRelationSelect($field, $withColumns);
 
                 $withes[] = empty($withColumns) ? $field : $field.':'.join(',', $withColumns);
+            } elseif (static::canBeSelected((new static), $field)) {
+                $columns[] = $field;
             }
         }
 
