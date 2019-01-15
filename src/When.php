@@ -51,17 +51,17 @@ class When
     /**
      * 输出结果
      *
+     * @param bool $handle
      * @return null
      */
-    public function result()
+    public function result($handle = false)
     {
-        if ($this->when === true) {
-            return $this->success;
-        }
-        if ($this->when === false) {
-            return $this->fail;
+        $result = $this->when === true ? $this->success : $this->fail;
+
+        if ($handle && $result instanceof Closure) {
+            return $result();
         }
 
-        return null;
+        return $result;
     }
 }
