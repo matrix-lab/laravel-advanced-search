@@ -10,7 +10,7 @@ class WhenTest extends TestCase
     private $successString = 'This is success string';
     private $failString = 'This is fail string';
 
-    public function testMakeClosure()
+    public function test_make_closure()
     {
         $when = When::make(function () {
             return true;
@@ -19,7 +19,7 @@ class WhenTest extends TestCase
         $this->assertEquals($this->successString, $when->result());
     }
 
-    public function testMakeClosureWithArgs()
+    public function test_make_closure_with_args()
     {
         $when = When::make(function ($arg1, $arg2) {
             return $arg1 && $arg2;
@@ -29,7 +29,7 @@ class WhenTest extends TestCase
         $this->assertNotEquals($this->successString, $when->result());
     }
 
-    public function testFail()
+    public function test_fail()
     {
         $when = When::make(false)->success($this->successString)->fail($this->failString);
 
@@ -37,7 +37,7 @@ class WhenTest extends TestCase
         $this->assertNotEquals($this->successString, $when->result());
     }
 
-    public function testSuccess()
+    public function test_success()
     {
         $when = When::make(true)->success($this->successString)->fail($this->failString);
 
@@ -45,7 +45,7 @@ class WhenTest extends TestCase
         $this->assertNotEquals($this->failString, $when->result());
     }
 
-    public function testSuccessAndFailClosure()
+    public function test_success_and_fail_closure()
     {
         $when = When::make(true)->success(function () {
             return $this->successString;
