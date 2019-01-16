@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Foundation\Testing\TestResponse;
 use Tests\DBTestCase;
 use Tests\Utils\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ class GetListTest extends DBTestCase
     {
         factory(User::class, 30)->create();
         $pageSize = 10;
-        $list = User::getList(['page' => 1, 'page_size' => $pageSize]);
+        $list     = User::getList(['page' => 1, 'page_size' => $pageSize]);
 
         $this->assertEquals(LengthAwarePaginator::class, get_class($list));
         $this->assertEquals($pageSize, $list->count());
@@ -46,5 +47,26 @@ class GetListTest extends DBTestCase
 
         $this->assertTrue(get_class($paginator) === Paginator::class);
         $this->assertTrue($paginator->count() === (new User)->getPerPage());
+    }
+
+    public function test_with_param()
+    {
+        factory(User::class, 20)->create();
+        $paginator = User::getList(['page' => 1], 'company:id,name');
+
+        $this->assertCount((new User)
+            ->getPerPage(), data_get($paginator->toArray(), 'data.*.company.id'));
+    }
+
+    public function test_selects_param()
+    {
+        factory(User::class, 5)->create();
+        $paginator = User::getList(['page' => 1], [], ['id', 'name']);
+        $paginator = $paginator->toArray();
+
+        foreach ($paginator['data'] as $user) {
+            $this->assertTrue(['id', 'name'] === array_keys($user));
+            $this->assertArrayNotHasKey('company_id', array_keys($user));
+        }
     }
 }

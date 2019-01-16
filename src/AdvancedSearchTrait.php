@@ -4,7 +4,6 @@ namespace MatrixLab\LaravelAdvancedSearch;
 
 use Schema;
 use Closure;
-use Request;
 use ReflectionClass;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,17 +24,17 @@ trait AdvancedSearchTrait
     /**
      * 根据条件获取符合条件的数据条数.
      *
-     * @param array $conditions
-     * @param null  $with
-     * @param array $selects
-     * @param bool  $withTrashed
+     * @param  array $conditions
+     * @param  array|null|string $with
+     * @param  array $selects
+     * @param  bool  $withTrashed
      *
      * @return mixed
      *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
-    public static function getCount($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
+    public static function getCount($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
     {
         unset($conditions['page']);
 
@@ -45,16 +44,16 @@ trait AdvancedSearchTrait
     /**
      * 根据请求的条件获取列表.
      *
-     * @param array        $conditions
-     * @param array|string $with
-     * @param bool         $withTrashed
+     * @param  array        $conditions
+     * @param  array|string $with
+     * @param  bool         $withTrashed
      *
      * @return Builder
      *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
-    public static function getListQuery($conditions = [], $with = null, $withTrashed = false)
+    public static function getListQuery($conditions = [], $with = [], $withTrashed = false)
     {
         $query = static::getQueryForSearch($with);
 
@@ -80,24 +79,24 @@ trait AdvancedSearchTrait
     /**
      * 根据请求的条件获取列表.
      *
-     * @param array        $conditions
-     * @param array|string $with
-     * @param array        $selects
-     * @param bool         $withTrashed
+     * @param  array        $conditions
+     * @param  array|null|string $with
+     * @param  array        $selects
+     * @param  bool         $withTrashed
      *
      * @return mixed
      *
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
-    public static function getList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
+    public static function getList($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
     {
         $query = static::getListQuery($conditions, $with, $withTrashed);
 
         // 根据请求中是否存在 page 参数来返回 collection | paginator
         if (array_has($conditions, 'page')) {
             /* @var Builder $query */
-            return $query->paginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(Request::except([
+            return $query->paginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(request()->except([
                 'page',
             ]));
         } else {
@@ -107,22 +106,22 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * @param array $conditions
-     * @param null $with
-     * @param array $selects
-     * @param bool $withTrashed
+     * @param  array $conditions
+     * @param  array|null|string $with
+     * @param  array $selects
+     * @param  bool $withTrashed
      * @return \Illuminate\Contracts\Pagination\Paginator|Builder[]|\Illuminate\Database\Eloquent\Collection
      * @throws InternalErrorException
      * @throws \ReflectionException
      */
-    public static function getSimpleList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
+    public static function getSimpleList($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
     {
         $query = static::getListQuery($conditions, $with, $withTrashed);
 
         // 根据请求中是否存在 page 参数来返回 collection | paginator
         if (array_has($conditions, 'page')) {
             /* @var Builder $query */
-            return $query->simplePaginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(Request::except([
+            return $query->simplePaginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(request()->except([
                 'page',
             ]));
         } else {
@@ -288,7 +287,7 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * 整理出 where 条件，第二版.
+     * 整理出 where 条件.
      *
      * @param $conditions
      *
@@ -410,8 +409,8 @@ trait AdvancedSearchTrait
      */
     private static function getPageSize($conditions)
     {
-        $pageSize = Request::has('pageSize') ? Request::input('pageSize') : config('erp.page_size');
-        $pageSize = Request::has('page_size') ? Request::input('page_size') : $pageSize;
+        $pageSize = request()->has('pageSize') ? request('pageSize') : config('erp.page_size');
+        $pageSize = request()->has('page_size') ? request('page_size') : $pageSize;
         $pageSize = array_has($conditions, 'pageSize') ? $conditions['pageSize'] : $pageSize;
         $pageSize = array_has($conditions, 'page_size') ? $conditions['page_size'] : $pageSize;
 
