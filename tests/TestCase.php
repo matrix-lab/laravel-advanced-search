@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Orchestra\Database\ConsoleServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Nuwave\Lighthouse\Providers\LighthouseServiceProvider;
 
@@ -25,6 +26,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app)
     {
         return [
+            ConsoleServiceProvider::class,
             LighthouseServiceProvider::class,
         ];
     }
