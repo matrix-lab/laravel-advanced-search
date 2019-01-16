@@ -2,13 +2,13 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
+use Schema;
 use Closure;
+use Request;
+use ReflectionClass;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
-use Illuminate\Support\Collection;
-use ReflectionClass;
-use Request;
-use Schema;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 trait AdvancedSearchTrait
@@ -162,7 +162,7 @@ trait AdvancedSearchTrait
     {
         $query = static::query();
 
-        if (!empty($with)) {
+        if (! empty($with)) {
             $query = $query->with($with);
         }
 
@@ -237,9 +237,9 @@ trait AdvancedSearchTrait
             } elseif ($where instanceof Expression) {
                 $query->whereRaw($where);
             } elseif ($where instanceof ModelScope) {
-                $method      = $where->getScopeName();
-                $className   = $where->getClassName() ?: static::class;
-                $args        = $where->getArgs();
+                $method = $where->getScopeName();
+                $className = $where->getClassName() ?: static::class;
+                $args = $where->getArgs();
                 $scopeMethod = 'scope'.title_case($method);
 
                 if ($className === static::class
@@ -270,11 +270,11 @@ trait AdvancedSearchTrait
         // 构造查询
         foreach ($operatorAndValue as $operator => $value) {
             if ('in' == $operator) {
-                if ((is_array($value) || $value instanceof Collection) && !empty($value)) {
+                if ((is_array($value) || $value instanceof Collection) && ! empty($value)) {
                     $q->{"{$whereType}In"}($field, $value);
                 }
             } elseif ('not_in' == $operator) {
-                if (is_array($value) && !empty($value)) {
+                if (is_array($value) && ! empty($value)) {
                     $q->{"{$whereType}NotIn"}($field, $value);
                 }
             } elseif ('is' == $operator) {
@@ -313,19 +313,19 @@ trait AdvancedSearchTrait
             } else {
                 if (str_contains($key, '.')) {  // 如果 $k 是  name.like 则要解析出正确的 field，以及映射好 operator
                     // eg: 'name.like' => 'ccc' 得到 'name' => [ 'like' => 'ccc']
-                    $field            = explode('.', $key)[0];
+                    $field = explode('.', $key)[0];
                     $operatorAndValue = [explode('.', $key)[1] => $item];
-                } elseif (!is_array($item)) {   // 如果没有操作符的话，那么默认就是等号
+                } elseif (! is_array($item)) {   // 如果没有操作符的话，那么默认就是等号
                     //eg: 'name' => 'chaoyang' 得到 'name' => ['eq' => 'chaoyang']
-                    $field            = $key;
+                    $field = $key;
                     $operatorAndValue = ['eq' => $item];
                 } else {
-                    $field            = $key;
+                    $field = $key;
                     $operatorAndValue = $item;
                 }
 
                 // 上面的操作一定会将 操作符 和 值 处理为数组
-                if (!is_array($operatorAndValue)) {
+                if (! is_array($operatorAndValue)) {
                     throw new InternalErrorException('搜索查询的传参有误，请检查');
                 }
 
@@ -395,7 +395,7 @@ trait AdvancedSearchTrait
     private static function offsetSearch($query, $conditions)
     {
         $offset = array_has($conditions, 'offset') ? $conditions['offset'] : 0;
-        $limit  = array_has($conditions, 'limit') ? $conditions['limit'] : 0;
+        $limit = array_has($conditions, 'limit') ? $conditions['limit'] : 0;
         if ($limit > 0) {
             $query->skip((int) $offset)->take((int) $limit);
         }
@@ -432,7 +432,7 @@ trait AdvancedSearchTrait
             return $q;
         }
 
-        if (Schema::hasColumn($this->getTable(), 'name') && !empty(trim($key))) {
+        if (Schema::hasColumn($this->getTable(), 'name') && ! empty(trim($key))) {
             $key = trim($key, ' ');
             $key = trim($key, '%');
             $key = "%{$key}%";

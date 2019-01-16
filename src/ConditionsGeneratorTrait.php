@@ -3,8 +3,8 @@
 namespace MatrixLab\LaravelAdvancedSearch;
 
 use Closure;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Query\Expression;
 
 /**
  * 条件搜索的条件生成器.
@@ -80,8 +80,8 @@ trait ConditionsGeneratorTrait
      */
     protected function fireInput($requestKey, Closure $fire = null)
     {
-        if (!$this->isVaildInput($requestKey)) {
-            return null;
+        if (! $this->isVaildInput($requestKey)) {
+            return;
         }
 
         $inputArg = $this->getInputArgs($requestKey);
@@ -201,16 +201,16 @@ trait ConditionsGeneratorTrait
             $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts'));
             array_forget($this->inputArgs, 'paginator.sorts');
         }
-        $sorts  = collect($sorts)->filter();
-        $sorts  = collect($this->order())->merge($sorts);
+        $sorts = collect($sorts)->filter();
+        $sorts = collect($this->order())->merge($sorts);
         $orders = [];
         foreach ($sorts as $sort) {
             if (is_string($sort)) {
-            if (!starts_with($sort, ['+', '-'])) {
-                continue;
+                if (! starts_with($sort, ['+', '-'])) {
+                    continue;
+                }
+                $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
             }
-            $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
-        }
 
             if ($sort instanceof Expression) {
                 $orders[] = $sort;
@@ -230,7 +230,7 @@ trait ConditionsGeneratorTrait
     {
         // 处理 more
         $moreInputs = $this->getInputArgs('more');
-        if (is_array($moreInputs) && !empty($moreInputs)) {
+        if (is_array($moreInputs) && ! empty($moreInputs)) {
             unset($this->inputArgs['more']);
             $this->inputArgs = array_merge($this->inputArgs, $moreInputs);
         }
@@ -292,12 +292,10 @@ trait ConditionsGeneratorTrait
     protected function when($value, $callback, $default = null)
     {
         $value = is_string($value) ? trim($value) : $value;
-        if ($value !== '' && !is_null($value) && $value !== []) {
+        if ($value !== '' && ! is_null($value) && $value !== []) {
             return $callback instanceof Closure ? $callback($this->inputArgs) : $callback;
         } elseif ($default) {
             return $default instanceof Closure ? $default($this->inputArgs) : $default;
         }
-
-        return null;
     }
 }

@@ -24,6 +24,5 @@ class AdvancedSearchServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
     }
 }

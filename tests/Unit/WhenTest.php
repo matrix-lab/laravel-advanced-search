@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use MatrixLab\LaravelAdvancedSearch\When;
 use PHPUnit\Framework\TestCase;
+use MatrixLab\LaravelAdvancedSearch\When;
 
 class WhenTest extends TestCase
 {

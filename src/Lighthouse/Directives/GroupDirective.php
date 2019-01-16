@@ -2,20 +2,18 @@
 
 namespace MatrixLab\LaravelAdvancedSearch\Lighthouse\Directives;
 
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\DirectiveNode;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
 use GraphQL\Language\AST\FieldDefinitionNode;
-use Nuwave\Lighthouse\Schema\AST\DocumentAST;
 use Nuwave\Lighthouse\Schema\AST\PartialParser;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
-use Nuwave\Lighthouse\Schema\Directives\Nodes\GroupDirective as LighthouseGroupDirective;
 use Nuwave\Lighthouse\Support\Contracts\NodeManipulator;
 use Nuwave\Lighthouse\Schema\Directives\Fields\NamespaceDirective;
 use Nuwave\Lighthouse\Schema\Directives\Fields\MiddlewareDirective;
+use Nuwave\Lighthouse\Schema\Directives\Nodes\GroupDirective as LighthouseGroupDirective;
 
 /**
  * Class GroupDirective.
@@ -55,7 +53,6 @@ class GroupDirective extends LighthouseGroupDirective implements NodeManipulator
                         $fieldDefinition,
                         NamespaceDirective::NAME
                     );
-
 
                     $newNamespaceDirective = $existingNamespaces
                         ? $this->mergeNamespaceOnExistingDirective($namespaceValue, $existingNamespaces)

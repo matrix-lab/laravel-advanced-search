@@ -33,11 +33,12 @@ class When
     public function success($value)
     {
         $this->success = $value;
+
         return $this;
     }
 
     /**
-     * 失败
+     * 失败.
      *
      * @param $value
      * @return $this
@@ -45,11 +46,12 @@ class When
     public function fail($value)
     {
         $this->fail = $value;
+
         return $this;
     }
 
     /**
-     * 输出结果
+     * 输出结果.
      *
      * @param bool $handle
      * @return null

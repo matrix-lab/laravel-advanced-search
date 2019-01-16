@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\DB;
 use Tests\DBTestCase;
 use Tests\Utils\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetListTest extends DBTestCase
 {
@@ -15,7 +15,7 @@ class GetListTest extends DBTestCase
     {
         factory(User::class, 30)->create();
         $pageSize = 10;
-        $list     = User::getList(['page' => 1, 'page_size' => $pageSize]);
+        $list = User::getList(['page' => 1, 'page_size' => $pageSize]);
 
         $this->assertEquals(LengthAwarePaginator::class, get_class($list));
         $this->assertEquals($pageSize, $list->count());

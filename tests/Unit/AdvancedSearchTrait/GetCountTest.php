@@ -2,8 +2,6 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\DBTestCase;
 use Tests\Utils\Models\User;
 

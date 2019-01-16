@@ -5,21 +5,21 @@ namespace MatrixLab\LaravelAdvancedSearch;
 class ModelScope
 {
     /**
-     * 类名
+     * 类名.
      *
      * @var
      */
     protected $className;
 
     /**
-     * scope 方法名称
+     * scope 方法名称.
      *
      * @var
      */
     private $scopeName;
 
     /**
-     * 构造参数
+     * 构造参数.
      *
      * @var array
      */
@@ -28,7 +28,7 @@ class ModelScope
     public function __construct($scopeName, ...$args)
     {
         $this->scopeName = $scopeName;
-        $this->args      = $args;
+        $this->args = $args;
     }
 
     /**
@@ -51,7 +51,7 @@ class ModelScope
      * @param mixed $className
      * @return ModelScope
      */
-    public function setClassName($className): ModelScope
+    public function setClassName($className): self
     {
         $this->className = $className;
 
