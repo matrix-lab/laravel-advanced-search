@@ -2,10 +2,10 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
 use ReflectionClass;
+use Illuminate\Database\Eloquent\Model;
+use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 trait WithAndSelectForGraphQLGeneratorTrait
@@ -20,7 +20,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
         $fields = $info->getFieldSelection(5);
 
         // 如果没有 total 则返回简单分页
-        if (!array_has($fields, 'cursor.total')) {
+        if (! array_has($fields, 'cursor.total')) {
             return static::getSimpleList($conditions, ...static::getWithAndSelect($info));
         }
 
@@ -35,14 +35,14 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
     public function getAllColumns()
     {
-        if(!self::hasAllCollumns(new static)) {
+        if (! self::hasAllCollumns(new static)) {
             return ['*'];
         }
 
         $allColumns = (new static())->allColumns;
 
         if (empty($allColumns)) {
-            throw new InternalErrorException(" SQL 的 select 内容为空，请检查 ".static::class." 中是否有 \$allColumns 字段，如果没有，请执行 php artisan make:models-columns 生成。");
+            throw new InternalErrorException(' SQL 的 select 内容为空，请检查 '.static::class.' 中是否有 $allColumns 字段，如果没有，请执行 php artisan make:models-columns 生成。');
         }
 
         return $allColumns;
@@ -56,7 +56,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
     }
 
     /**
-     * 解析 with 关系和 selects 关系
+     * 解析 with 关系和 selects 关系.
      *
      * @param $fields
      * @return array
@@ -66,8 +66,8 @@ trait WithAndSelectForGraphQLGeneratorTrait
     {
         $fields = isset($fields['items']) ? $fields['items'] : $fields;
 
-        $columns         = [];
-        $withes          = [];
+        $columns = [];
+        $withes = [];
         $modelReflection = new ReflectionClass(static::class);
         foreach ($fields as $field => $isSingleField) {
             if ($modelReflection->hasMethod($field)) {
@@ -83,14 +83,14 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
                 $relation = (new static)->{$field}(); // 关联模型对象
                 /** @var Model $relation */
-                $relationModel      = $relation->getModel();
+                $relationModel = $relation->getModel();
                 $relationReflection = new ReflectionClass($relationModel); // 关联模型对象的反射
-                $withColumns        = [];
+                $withColumns = [];
                 foreach ($isSingleField as $subField => $isSingleSubField) {
                     if ($relationReflection->hasMethod($subField)) {
                         $subRelationModelInstance = $relationReflection->newInstance()->{$subField}()->getModel();
-                        $subRelationWithColumns   = ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1];
-                        $withes[]                 = $subRelationWithColumns === ['*'] ? $field.'.'.$subField : $field.'.'.$subField.':'.join(',', $subRelationWithColumns);
+                        $subRelationWithColumns = ($subRelationModelInstance)::parseResolveInfoToWithColumns($isSingleSubField)[1];
+                        $withes[] = $subRelationWithColumns === ['*'] ? $field.'.'.$subField : $field.'.'.$subField.':'.implode(',', $subRelationWithColumns);
                     } elseif (static::canBeSelected($relationModel, $subField)) {
                         $withColumns[] = $subField;
                     }
@@ -98,7 +98,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
                 $withColumns = static::getRelationSelect($field, $withColumns);
 
-                $withes[] = empty($withColumns) ? $field : $field.':'.join(',', $withColumns);
+                $withes[] = empty($withColumns) ? $field : $field.':'.implode(',', $withColumns);
             } elseif (static::canBeSelected((new static), $field)) {
                 $columns[] = $field;
             }
@@ -108,7 +108,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
     }
 
     /**
-     * 是否能够构成 select 字段
+     * 是否能够构成 select 字段.
      *
      * @param $model
      * @param $field
@@ -121,7 +121,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
     }
 
     /**
-     * 对象是否有 allColumns 属性
+     * 对象是否有 allColumns 属性.
      *
      * @param $model
      * @return bool
@@ -133,7 +133,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
     }
 
     /**
-     * 获取关联关系里面的 select
+     * 获取关联关系里面的 select.
      *
      * @param $relation
      * @param $columns
@@ -146,7 +146,7 @@ trait WithAndSelectForGraphQLGeneratorTrait
 
         if ((new ReflectionClass($relation))->hasMethod('getModel')) {
             $relationModel = $relation->getModel();
-            if (!(new ReflectionClass(static::class))->hasProperty('allColumns')) {
+            if (! (new ReflectionClass(static::class))->hasProperty('allColumns')) {
                 return ['*'];
             }
 

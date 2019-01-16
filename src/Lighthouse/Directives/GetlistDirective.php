@@ -3,18 +3,17 @@
 namespace MatrixLab\LaravelAdvancedSearch\Lighthouse\Directives;
 
 use App\Models\BaseModel;
-use GraphQL\Language\AST\FieldDefinitionNode;
-use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Str;
-use MatrixLab\LaravelAdvancedSearch\ConditionsGeneratorTrait;
-use Nuwave\Lighthouse\Exceptions\DirectiveException;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
-use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Schema\Values\FieldValue;
-use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use Nuwave\Lighthouse\Exceptions\DirectiveException;
+use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
+use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
+use MatrixLab\LaravelAdvancedSearch\ConditionsGeneratorTrait;
 
 class GetlistDirective extends BaseDirective implements FieldResolver, FieldManipulator
 {
@@ -91,20 +90,21 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
         return $value->setResolver(
             function ($root, array $args) use ($value) {
                 $this->inputArgs = $args;
-                $args            = collect([
+                $args = collect([
                     'paginator.sort'  => $this->directiveArgValue('sort'),
                     'paginator.sorts' => $this->directiveArgValue('sorts'),
                 ])->merge($args)->filter()->toArray();
 
                 /** @var BaseModel $model */
                 $model = $this->getPaginatorModel();
+
                 return $model::getGraphQLPaginator($this->getConditions($args), func_get_args()[3]);
             }
         );
     }
 
     /**
-     * Set wheres for getlist condition
+     * Set wheres for getlist condition.
      *
      * @return array
      */
@@ -118,7 +118,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
     }
 
     /**
-     * Custom query resolver
+     * Custom query resolver.
      *
      * @param FieldValue $fieldValue
      * @return FieldValue
@@ -150,7 +150,6 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
         );
     }
 
-
     /**
      * Get the model class from the `model` argument of the field.
      *
@@ -165,7 +164,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
         $model = $this->directiveArgValue('model');
 
         // Fallback to using information from the schema definition as the model name
-        if (!$model) {
+        if (! $model) {
             $model = ASTHelper::getUnderlyingTypeName($this->definitionNode);
 
             // Cut the added type suffix to get the base model class name
@@ -173,7 +172,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
             $model = Str::before($model, 'Connection');
         }
 
-        if (!$model) {
+        if (! $model) {
             throw new DirectiveException(
                 "A `model` argument must be assigned to the '{$this->name()}'directive on '{$this->definitionNode->name->value}"
             );
@@ -181,7 +180,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
 
         return $this->namespaceClassName(
             $model,
-            (array)config('lighthouse.namespaces.models')
+            (array) config('lighthouse.namespaces.models')
         );
     }
 }

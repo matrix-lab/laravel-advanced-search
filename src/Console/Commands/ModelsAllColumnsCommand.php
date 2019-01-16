@@ -2,12 +2,11 @@
 
 namespace MatrixLab\LaravelAdvancedSearch\Console\Commands;
 
-use Composer\Autoload\ClassLoader;
-use Composer\Autoload\ClassMapGenerator;
-use Doctrine\DBAL\Schema\Column;
-use Illuminate\Console\Command;
-use Illuminate\Support\Composer;
 use ReflectionObject;
+use Illuminate\Console\Command;
+use Doctrine\DBAL\Schema\Column;
+use Illuminate\Support\Composer;
+use Composer\Autoload\ClassMapGenerator;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ModelsAllColumnsCommand extends Command
@@ -44,19 +43,19 @@ class ModelsAllColumnsCommand extends Command
     public function handle()
     {
         $this->dirs = ['app'];
-        $models     = $this->loadModels();
+        $models = $this->loadModels();
 
         $hasDoctrine = interface_exists('Doctrine\DBAL\Driver');
 
         foreach ($models as $name) {
             $this->properties = [];
-            $this->methods    = [];
+            $this->methods = [];
             if (class_exists($name)) {
                 try {
                     // handle abstract classes, interfaces, ...
                     $reflectionClass = new \ReflectionClass($name);
 
-                    if (!$reflectionClass->isSubclassOf('Illuminate\Database\Eloquent\Model')
+                    if (! $reflectionClass->isSubclassOf('Illuminate\Database\Eloquent\Model')
                         || $reflectionClass->isSubclassOf('Illuminate\Database\Eloquent\Relations\Pivot')) {
                         continue;
                     }
@@ -65,7 +64,7 @@ class ModelsAllColumnsCommand extends Command
                         $this->comment("Loading model '$name'");
                     }
 
-                    if (!$reflectionClass->IsInstantiable()) {
+                    if (! $reflectionClass->IsInstantiable()) {
                         // ignore abstract class or interface
                         continue;
                     }
@@ -76,14 +75,14 @@ class ModelsAllColumnsCommand extends Command
                         $columns = $this->getPropertiesFromTable($model);
                     }
 
-                    if (!count($columns)) {
+                    if (! count($columns)) {
                         continue;
                     }
 
                     $columnsFiledContent = '';
                     /** @var Column $column */
                     foreach ($columns as $column) {
-                        $comment             = $column->getComment() ? ' // '.$column->getComment() : '';
+                        $comment = $column->getComment() ? ' // '.$column->getComment() : '';
                         $columnsFiledContent .= <<<EOF
         '{$column->getName()}',{$comment}
 
@@ -100,7 +99,7 @@ EOF;
 
                     // Get file path and name by Refleaction
                     $modelReflection = new ReflectionObject(new $model);
-                    $fileName        = $modelReflection->getFileName();
+                    $fileName = $modelReflection->getFileName();
 
                     $modelContent = file_get_contents($fileName);
                     // Remove allColumns
@@ -111,13 +110,12 @@ EOF;
 
                     $this->comment($modelReflection->getName().' has been appended $allColumns.');
                 } catch (\Exception $e) {
-                    $this->error("Exception: ".$e->getMessage()."\nCould not analyze class $name.");
+                    $this->error('Exception: '.$e->getMessage()."\nCould not analyze class $name.");
                 }
             }
         }
 
-
-        if (!$hasDoctrine) {
+        if (! $hasDoctrine) {
             $this->error(
                 'Warning: `"doctrine/dbal": "~2.3"` is required to load database information. '.
                 'Please require that in your composer.json and run `composer update`.'
@@ -136,6 +134,7 @@ EOF;
                 }
             }
         }
+
         return $models;
     }
 
@@ -145,7 +144,7 @@ EOF;
      */
     public function getPropertiesFromTable($model)
     {
-        $table  = $model->getConnection()->getTablePrefix().$model->getTable();
+        $table = $model->getConnection()->getTablePrefix().$model->getTable();
         $schema = $model->getConnection()->getDoctrineSchemaManager($table);
 
         $database = null;

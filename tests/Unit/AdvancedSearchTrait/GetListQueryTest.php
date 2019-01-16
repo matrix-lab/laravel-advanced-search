@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Database\Eloquent\Builder;
 use Tests\DBTestCase;
 use Tests\Utils\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class GetListQueryTest extends DBTestCase
 {

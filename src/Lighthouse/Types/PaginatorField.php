@@ -23,8 +23,7 @@ class PaginatorField
         array $args,
         $context = null,
         ResolveInfo $info = null
-    )
-    {
+    ) {
         $info = [
             'count'       => $root->count(),
             'currentPage' => $root->currentPage(),
@@ -56,8 +55,7 @@ class PaginatorField
         array $args,
         $context = null,
         ResolveInfo $info = null
-    )
-    {
+    ) {
         return $root->values();
     }
 }

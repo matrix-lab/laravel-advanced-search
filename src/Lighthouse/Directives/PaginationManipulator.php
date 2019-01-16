@@ -2,18 +2,17 @@
 
 namespace MatrixLab\LaravelAdvancedSearch\Lighthouse\Directives;
 
-use MatrixLab\LaravelAdvancedSearch\Lighthouse\Types\PaginatorField;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
 use Nuwave\Lighthouse\Schema\AST\PartialParser;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
+use MatrixLab\LaravelAdvancedSearch\Lighthouse\Types\PaginatorField;
 use Nuwave\Lighthouse\Schema\Directives\Fields\PaginationManipulator as BasePaginationManipulator;
 
 class PaginationManipulator extends BasePaginationManipulator
 {
-
     /**
      * Transform the definition for a field to a field with pagination.
      *
