@@ -90,4 +90,63 @@ class SortOutWhereConditionsProTest extends DBTestCase
             ],
         ], $result);
     }
+
+    public function test_field_without_dot_and_operator()
+    {
+        $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'age'    => 14,
+                ],
+            ],
+        ]);
+
+        $this->assertEquals([
+            [
+                'age' => [
+                    'eq' => 14,
+                ],
+            ],
+        ], $result);
+    }
+
+    public function test_field_without_dot_operator_and_value_is_array()
+    {
+        $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'bar' => [
+                        'eq' => 'foo'
+                    ]
+                ],
+            ],
+        ]);
+
+        $this->assertEquals([
+            [
+                'bar' => [
+                    'eq' => 'foo',
+                ],
+            ],
+        ], $result);
+    }
+
+    public function test_field_with_dollar()
+    {
+        $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'company$name'    => 'microsoft',
+                ],
+            ],
+        ]);
+
+        $this->assertEquals([
+            [
+                'company.name' => [
+                    'eq' => 'microsoft',
+                ],
+            ],
+        ], $result);
+    }
 }
