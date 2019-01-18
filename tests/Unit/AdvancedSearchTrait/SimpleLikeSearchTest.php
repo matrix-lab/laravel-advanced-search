@@ -22,10 +22,10 @@ class SimpleLikeSearchTest extends DBTestCase
         factory(User::class, 20)->create();
 
         $this->assertEquals(2, User::getCount([
-            'keyword' => 'aaaaa'
+            'keyword' => 'aaaaa',
         ]));
         $this->assertEquals(1, User::getCount([
-            'keyword' => 'bbbbb'
+            'keyword' => 'bbbbb',
         ]));
     }
 }

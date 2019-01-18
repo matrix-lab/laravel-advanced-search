@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
-use MatrixLab\LaravelAdvancedSearch\ModelScope;
 use Tests\DBTestCase;
 use Tests\Utils\Models\User;
+use Illuminate\Support\Facades\DB;
+use MatrixLab\LaravelAdvancedSearch\ModelScope;
 
 class SortOutWhereConditionsProTest extends DBTestCase
 {
