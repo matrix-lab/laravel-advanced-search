@@ -64,4 +64,14 @@ class User extends Authenticatable
             $q->where('name', $args['company']);
         });
     }
+
+    public function scopeSearchKeyword($q, $key)
+    {
+        $key = trim($key, ' ');
+        $key = trim($key, '%');
+        $key = "%{$key}%";
+        $q->where('name', 'like', $key);
+
+        return $q;
+    }
 }

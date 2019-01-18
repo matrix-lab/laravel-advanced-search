@@ -9,15 +9,6 @@ use Nuwave\Lighthouse\Providers\LighthouseServiceProvider;
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * This variable is injected the main GraphQL class
-     * during execution of each test. It may be set either
-     * for an entire test class or for a single test.
-     *
-     * @var string
-     */
-    protected $schema = '';
-
-    /**
      * Get package providers.
      *
      * @param  \Illuminate\Foundation\Application  $app

@@ -2,15 +2,15 @@
 
 namespace Tests\Utils\Models;
 
-use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use MatrixLab\LaravelAdvancedSearch\AdvancedSearchTrait;
 
 class Post extends Model
 {
-    use Searchable;
+    use AdvancedSearchTrait;
 
     protected $guarded = [];
 
