@@ -70,6 +70,16 @@ trait ConditionsGeneratorTrait
         return [];
     }
 
+    protected function groupBy()
+    {
+        return [];
+    }
+
+    protected function having()
+    {
+        return [];
+    }
+
     /**
      * 自由处理请求参数.
      *
@@ -105,6 +115,12 @@ trait ConditionsGeneratorTrait
 
         // 加工分页(该方法可以重写)
         $this->handlePaginate();
+
+        // 加工 group by
+        $this->handleGroupBy();
+
+        // 加工 having
+        $this->handleHaving();
 
         // 将 wheres 方法内配置的条件拿过来
         $this->conditions['wheres'] = array_merge($this->conditions['wheres'], $this->wheres());
@@ -218,6 +234,42 @@ trait ConditionsGeneratorTrait
         }
         $this->appendConditions(['order' => $orders]);
 
+        return $this;
+    }
+
+    /**
+     * 生成 group by 的参数.
+     *
+     * @return $this
+     */
+    protected function handleGroupBy()
+    {
+        $groupBy = $this->groupBy();
+
+        if (is_string($groupBy) || $groupBy instanceof When) {
+            $groupBy = [$groupBy];
+        }
+
+        $this->appendConditions([
+            'groupBy' => collect($groupBy)->filter()->map(function ($item) {
+                    if ($item instanceof When) {
+                        $item = $item->result();
+                    }
+
+                    return $item;
+                })->unique()->values()->all()
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * 生成 having 的参数.
+     *
+     * @return $this
+     */
+    protected function handleHaving()
+    {
         return $this;
     }
 

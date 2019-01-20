@@ -67,6 +67,9 @@ trait AdvancedSearchTrait
         // 添加 where 搜索 （高级搜索）
         $query = static::advanceSearch($query, $conditions);
 
+        // 添加 group by
+        $query = static::groupBySearch($query, $conditions);
+
         // 添加排序
         $query = static::orderSearch($query, $conditions);
 
@@ -381,6 +384,13 @@ trait AdvancedSearchTrait
         }
 
         return $query;
+    }
+
+    private static function groupBySearch(Builder $query, $conditions)
+    {
+        $groupBy = isset($conditions['groupBy']) ? $conditions['groupBy'] : [];
+
+        return $groupBy ? $query->groupBy($groupBy) : $query;
     }
 
     /**
