@@ -246,7 +246,12 @@ trait ConditionsGeneratorTrait
     {
         $groupBy = $this->groupBy();
 
-        if (is_string($groupBy) || $groupBy instanceof When) {
+        // 过滤 groupBy 支持的格式
+        if (!is_string($groupBy) && !is_array($groupBy) && !($groupBy instanceof When) && !($groupBy instanceof Expression)) {
+            $groupBy = [];
+        }
+
+        if (!is_array($groupBy)) {
             $groupBy = [$groupBy];
         }
 
