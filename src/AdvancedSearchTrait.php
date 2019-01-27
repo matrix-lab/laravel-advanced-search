@@ -70,6 +70,9 @@ trait AdvancedSearchTrait
         // 添加 group by
         $query = static::groupBySearch($query, $conditions);
 
+        // 添加 having
+        $query = static::havingSearch($query, $conditions);
+
         // 添加排序
         $query = static::orderSearch($query, $conditions);
 
@@ -391,6 +394,88 @@ trait AdvancedSearchTrait
         $groupBy = isset($conditions['groupBy']) ? $conditions['groupBy'] : [];
 
         return $groupBy ? $query->groupBy($groupBy) : $query;
+    }
+
+    /**
+     * @param Builder $query
+     * @param         $conditions
+     *
+     * @return Builder
+     * @throws InternalErrorException
+     */
+    private static function havingSearch(Builder $query, $conditions)
+    {
+        $havings = self::sortOutHavingConditions($conditions);
+        // dd($havings);
+        foreach ($havings as $having) {
+            if (is_array($having)) {
+                foreach ($having as $field => $operatorAndValue) {
+                    $having_raws = [];
+                    $mixType = array_get($operatorAndValue, 'mix', 'and');
+                    unset($operatorAndValue['mix']);
+
+                    foreach ($operatorAndValue as $operator => $value) {
+                        $having_raws[] = $field . self::convertOperator($operator) . $value;
+                    }
+
+                    if ($having_raws) {
+                        $query->havingRaw(implode(' ' . $mixType . ' ', $having_raws));
+                    }
+                }
+            } elseif ($having instanceof Expression) {
+                $query->havingRaw($having);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * 整理出 where 条件.
+     *
+     * @param $conditions
+     *
+     * @return array
+     *
+     * @throws InternalErrorException
+     */
+    private static function sortOutHavingConditions($conditions)
+    {
+        $newConditions = [];
+
+        foreach (array_get($conditions, 'having', []) as $key => $item) {
+            if (is_int($key)) {
+                // 如果是闭包的话，直接 push ，不做处理，构造时进行处理
+                if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
+                    $newConditions[] = $item;
+                    continue;
+                }
+            } else {
+                if (str_contains($key, '.')) {  // 如果 $k 是  name.like 则要解析出正确的 field，以及映射好 operator
+                    // eg: 'name.like' => 'ccc' 得到 'name' => [ 'like' => 'ccc']
+                    $field = explode('.', $key)[0];
+                    $operatorAndValue = [explode('.', $key)[1] => $item];
+                } elseif (! is_array($item)) {   // 如果没有操作符的话，那么默认就是等号
+                    //eg: 'name' => 'chaoyang' 得到 'name' => ['eq' => 'chaoyang']
+                    $field = $key;
+                    $operatorAndValue = ['eq' => $item];
+                } else {
+                    $field = $key;
+                    $operatorAndValue = $item;
+                }
+
+                // 上面的操作一定会将 操作符 和 值 处理为数组
+                if (! is_array($operatorAndValue)) {
+                    throw new InternalErrorException('having 的传参有误，请检查');
+                }
+
+                $newConditions[] = [
+                    $field => $operatorAndValue,
+                ];
+            }
+        }
+
+        return $newConditions;
     }
 
     /**
