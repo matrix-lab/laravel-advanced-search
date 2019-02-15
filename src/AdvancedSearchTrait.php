@@ -223,12 +223,12 @@ trait AdvancedSearchTrait
                             $mixType,
                             $field
                         ) {
-                            self::makeComboQueryPro($q, $field, $mixType, $operatorAndValue);
+                            self::makeComboQuery($q, $field, $mixType, $operatorAndValue);
                         });
                     } else {
                         // 常规查询
                         $query->where(function ($q) use ($field, $mixType, $operatorAndValue) {
-                            self::makeComboQueryPro($q, $field, $mixType, $operatorAndValue);
+                            self::makeComboQuery($q, $field, $mixType, $operatorAndValue);
                         });
                     }
                 }
@@ -261,7 +261,7 @@ trait AdvancedSearchTrait
      * @param $mixType
      * @param $operatorAndValue
      */
-    private static function makeComboQueryPro($q, $field, $mixType, $operatorAndValue)
+    private static function makeComboQuery($q, $field, $mixType, $operatorAndValue)
     {
         // where 类型
         $whereType = 'and' == $mixType ? 'where' : 'orWhere';

@@ -8,8 +8,6 @@ use Tests\Utils\Models\Company;
 use Tests\Utils\Models\Post;
 use Tests\Utils\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class WhereSearchTest extends DBTestCase
