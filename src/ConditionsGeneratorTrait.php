@@ -275,6 +275,34 @@ trait ConditionsGeneratorTrait
      */
     protected function handleHaving()
     {
+        $having = $this->having();
+
+        if (!is_array($having)) {
+            $having = [$having];
+        }
+
+        $having = collect($having)->filter()->map(function ($item) {
+            if ($item instanceof When) {
+                $item = $item->result();
+            }
+
+            return $item;
+        })->all();
+
+        $havings = [];
+
+        foreach ($having as $index => $item) {
+            if (is_int($index) && is_array($item)) {// 判断 when 的情况
+                $havings = array_merge($havings, $item);
+            } else {
+                $havings[$index] = $item;
+            }
+        }
+
+        $this->appendConditions([
+            'having' => $havings
+        ]);
+
         return $this;
     }
 
