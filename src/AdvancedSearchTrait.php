@@ -2,13 +2,11 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
-use Schema;
 use Closure;
 use ReflectionClass;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
-use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 trait AdvancedSearchTrait
 {
@@ -27,11 +25,10 @@ trait AdvancedSearchTrait
      * @param  array $conditions
      * @param  array|null|string $with
      * @param  array $selects
-     * @param  bool  $withTrashed
+     * @param  bool $withTrashed
      *
      * @return mixed
      *
-     * @throws InternalErrorException
      * @throws \ReflectionException
      */
     public static function getCount($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
@@ -44,13 +41,12 @@ trait AdvancedSearchTrait
     /**
      * 根据请求的条件获取列表.
      *
-     * @param  array        $conditions
+     * @param  array $conditions
      * @param  array|string $with
-     * @param  bool         $withTrashed
+     * @param  bool $withTrashed
      *
      * @return Builder
      *
-     * @throws InternalErrorException
      * @throws \ReflectionException
      */
     public static function getListQuery($conditions = [], $with = [], $withTrashed = false)
@@ -64,8 +60,8 @@ trait AdvancedSearchTrait
         // 搜索条件 （简单的模糊搜索）
         $query = static::simpleLikeSearch($query, $conditions);
 
-        // 添加 where 搜索 （高级搜索）
-        $query = static::advanceSearch($query, $conditions);
+        // 添加 where
+        $query = static::whereSearch($query, $conditions);
 
         // 添加 group by
         $query = static::groupBySearch($query, $conditions);
@@ -80,16 +76,15 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * 根据请求的条件获取列表.
+     * 根据请求的条件获取列表。
      *
-     * @param  array        $conditions
+     * @param  array $conditions
      * @param  array|null|string $with
-     * @param  array        $selects
-     * @param  bool         $withTrashed
+     * @param  array $selects
+     * @param  bool $withTrashed
      *
      * @return mixed
      *
-     * @throws InternalErrorException
      * @throws \ReflectionException
      */
     public static function getList($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
@@ -109,12 +104,13 @@ trait AdvancedSearchTrait
     }
 
     /**
+     * 获取简单分页。
+     *
      * @param  array $conditions
      * @param  array|null|string $with
      * @param  array $selects
      * @param  bool $withTrashed
      * @return \Illuminate\Contracts\Pagination\Paginator|Builder[]|\Illuminate\Database\Eloquent\Collection
-     * @throws InternalErrorException
      * @throws \ReflectionException
      */
     public static function getSimpleList($conditions = [], $with = [], $selects = ['*'], $withTrashed = false)
@@ -137,13 +133,12 @@ trait AdvancedSearchTrait
      * 根据是否进行了搜索引擎，进行搜索.
      *
      * @param array $conditions
-     * @param null  $with
+     * @param null $with
      * @param array $selects
-     * @param bool  $withTrashed
+     * @param bool $withTrashed
      *
      * @return mixed
      *
-     * @throws InternalErrorException
      * @throws \ReflectionException
      */
     public static function dynamicGetList($conditions = [], $with = null, $selects = ['*'], $withTrashed = false)
@@ -198,7 +193,7 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * 高级搜索.
+     * 处理 where 条件.
      *
      * @param Builder $query
      * @param         $conditions
@@ -206,9 +201,8 @@ trait AdvancedSearchTrait
      * @return mixed
      *
      * @throws \ReflectionException
-     * @throws InternalErrorException
      */
-    private static function advanceSearch($query, $conditions)
+    private static function whereSearch($query, $conditions)
     {
         $wheres = self::sortOutWhereConditionsPro($conditions);
 
@@ -221,12 +215,13 @@ trait AdvancedSearchTrait
                     // 关联查询
                     if (str_contains($field, '.')) {
                         list($relation, $field) = explode('.', $field);
-                        $query->whereHas(
-                            camel_case($relation),
-                            function ($q) use ($operatorAndValue, $mixType, $field) {
-                                self::makeComboQueryPro($q, $field, $mixType, $operatorAndValue);
-                            }
-                        );
+                        $query->whereHas(camel_case($relation), function ($q) use (
+                            $operatorAndValue,
+                            $mixType,
+                            $field
+                        ) {
+                            self::makeComboQueryPro($q, $field, $mixType, $operatorAndValue);
+                        });
                     } else {
                         // 常规查询
                         $query->where(function ($q) use ($field, $mixType, $operatorAndValue) {
@@ -244,11 +239,10 @@ trait AdvancedSearchTrait
                 $args = $where->getArgs();
                 $scopeMethod = 'scope'.title_case($method);
 
-                if ($className === static::class
-                    && (new ReflectionClass(static::class))->hasMethod($scopeMethod)) {
+                if ($className === static::class && (new ReflectionClass(static::class))->hasMethod($scopeMethod)) {
                     $query->{$method}(...$args);
                 } else {
-                    throw new InternalErrorException(static::class.'类中找不到'.$scopeMethod.'方法');
+                    throw new \LogicException(static::class.'类中找不到'.$scopeMethod.'方法');
                 }
             }
         }
@@ -296,45 +290,39 @@ trait AdvancedSearchTrait
      *
      * @return array
      *
-     * @throws InternalErrorException
      */
     private static function sortOutWhereConditionsPro($conditions)
     {
         $newConditions = [];
 
         foreach (array_get($conditions, 'wheres', []) as $key => $item) {
-            if (is_int($key)) {
-                // 如果是闭包的话，直接 push ，不做处理，构造时进行处理
-                if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
-                    $newConditions[] = $item;
-                    continue;
-                }
-                $field = explode('->', $item['field'])[0];
-
-                $operatorAndValue = $item['value'];
-            } else {
-                if (str_contains($key, '.')) {  // 如果 $k 是  name.like 则要解析出正确的 field，以及映射好 operator
-                    // eg: 'name.like' => 'ccc' 得到 'name' => [ 'like' => 'ccc']
-                    $field = explode('.', $key)[0];
-                    $operatorAndValue = [explode('.', $key)[1] => $item];
-                } elseif (! is_array($item)) {   // 如果没有操作符的话，那么默认就是等号
-                    //eg: 'name' => 'chaoyang' 得到 'name' => ['eq' => 'chaoyang']
-                    $field = $key;
-                    $operatorAndValue = ['eq' => $item];
-                } else {
-                    $field = $key;
-                    $operatorAndValue = $item;
-                }
-
-                // 上面的操作一定会将 操作符 和 值 处理为数组
-                if (! is_array($operatorAndValue)) {
-                    throw new InternalErrorException('搜索查询的传参有误，请检查');
-                }
-
-                // 处理 $field 里面包含 $ 的情况
-                // eg: 'agent$name' => [ 'like' => '%猪队友%' ] 转换为  'agent.name' => [ 'like' => '%猪队友%' ]
-                $field = str_replace('$', '.', $field);
+            if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
+                $newConditions[] = $item;
+                continue;
             }
+
+            // 上面的操作一定会将 操作符 和 值 处理为数组
+            if (! is_array($item) && ! is_string($item) && ! is_bool($item) && ! is_int($item)) {
+                throw new \LogicException("键值为{$key}的 wheres 传参异常，请检查。");
+            }
+
+            if (str_contains($key, '.')) {  // 如果 $k 是  name.like 则要解析出正确的 field，以及映射好 operator
+                // eg: 'name.like' => 'ccc' 得到 'name' => [ 'like' => 'ccc']
+                $field = explode('.', $key)[0];
+                $operatorAndValue = [explode('.', $key)[1] => $item];
+            } elseif (! is_array($item)) {   // 如果没有操作符的话，那么默认就是等号
+                //eg: 'name' => 'chaoyang' 得到 'name' => ['eq' => 'chaoyang']
+                $field = $key;
+                $operatorAndValue = ['eq' => $item];
+            } else {
+                $field = $key;
+                $operatorAndValue = $item;
+            }
+
+            // 处理 $field 里面包含 $ 的情况
+            // eg: 'agent$name' => [ 'like' => '%猪队友%' ] 转换为  'agent.name' => [ 'like' => '%猪队友%' ]
+            $field = str_replace('$', '.', $field);
+
             $newConditions[] = [
                 $field => $operatorAndValue,
             ];
@@ -428,7 +416,7 @@ trait AdvancedSearchTrait
     }
 
     /**
-     * 统统都要有的搜索方法.
+     * 简单的关键词搜索。
      *
      * @param $q
      * @param $key
@@ -441,7 +429,7 @@ trait AdvancedSearchTrait
             return $q;
         }
 
-        if (Schema::hasColumn($this->getTable(), 'name') && ! empty(trim($key))) {
+        if (in_array('name', $this->getFillable()) && ! empty(trim($key))) {
             $key = trim($key, ' ');
             $key = trim($key, '%');
             $key = "%{$key}%";

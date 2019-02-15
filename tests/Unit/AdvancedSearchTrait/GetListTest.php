@@ -48,6 +48,15 @@ class GetListTest extends DBTestCase
         $this->assertTrue($paginator->count() === (new User)->getPerPage());
     }
 
+    public function test_get_simple_collection()
+    {
+        factory(User::class, 20)->create();
+        $list = User::getSimpleList();
+
+        $this->assertTrue(get_class($list) === Collection::class);
+        $this->assertTrue($list->count() === DB::table('users')->count());
+    }
+
     public function test_with_param()
     {
         factory(User::class, 20)->create();

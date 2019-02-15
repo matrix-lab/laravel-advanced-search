@@ -72,7 +72,7 @@ class SortOutWhereConditionsProTest extends DBTestCase
             [
                 'wheres' => [
                     'name.like' => 'foo%',
-                    'age.gt'    => 14,
+                    'age.gt' => 14,
                 ],
             ],
         ]);
@@ -96,7 +96,7 @@ class SortOutWhereConditionsProTest extends DBTestCase
         $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
             [
                 'wheres' => [
-                    'age'    => 14,
+                    'age' => 14,
                 ],
             ],
         ]);
@@ -116,8 +116,8 @@ class SortOutWhereConditionsProTest extends DBTestCase
             [
                 'wheres' => [
                     'bar' => [
-                        'eq' => 'foo'
-                    ]
+                        'eq' => 'foo',
+                    ],
                 ],
             ],
         ]);
@@ -136,7 +136,7 @@ class SortOutWhereConditionsProTest extends DBTestCase
         $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
             [
                 'wheres' => [
-                    'company$name'    => 'microsoft',
+                    'company$name' => 'microsoft',
                 ],
             ],
         ]);
@@ -148,5 +148,59 @@ class SortOutWhereConditionsProTest extends DBTestCase
                 ],
             ],
         ], $result);
+    }
+
+    public function test_field_with_dollar_and_dot()
+    {
+        $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'company$name.like' => 'microsoft',
+                ],
+            ],
+        ]);
+
+        $this->assertEquals([
+            [
+                'company.name' => [
+                    'like' => 'microsoft',
+                ],
+            ],
+        ], $result);
+    }
+
+    public function test_field_with_dollar_in_array()
+    {
+        $result = $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'company$age' => [
+                        'gte' => 1,
+                        'lt' => 20,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertEquals([
+            [
+                'company.age' => [
+                    'gte' => 1,
+                    'lt' => 20,
+                ],
+            ],
+        ], $result);
+    }
+
+    public function test_invalid_where_value()
+    {
+        $this->expectException(\LogicException::class);
+        $this->invokeMethod($this->user, 'sortOutWhereConditionsPro', [
+            [
+                'wheres' => [
+                    'name' => new User,
+                ],
+            ],
+        ]);
     }
 }

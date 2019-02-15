@@ -9,7 +9,7 @@ class GetCountTest extends DBTestCase
 {
     public function test_get_count()
     {
-        $inserCount = 33;
+        $inserCount = 18;
         factory(User::class, $inserCount)->create();
 
         $this->assertEquals($inserCount, User::getCount());
