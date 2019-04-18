@@ -73,9 +73,7 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
      */
     protected function getPaginationType(): string
     {
-        return PaginationManipulator::assertValidPaginationType(
-            $this->directiveArgValue('type', PaginationManipulator::PAGINATION_TYPE_PAGINATOR)
-        );
+        return $this->directiveArgValue('type', PaginationManipulator::PAGINATION_TYPE_PAGINATOR);
     }
 
     /**
@@ -134,13 +132,12 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
             $fieldValue->defaultNamespacesForParent()
         );
 
-        $resolver = construct_resolver($namespacedClassName, $methodName);
 
         $additionalData = $this->directiveArgValue('args');
 
         return $fieldValue->setResolver(
-            function ($root, array $args, $context = null, $info = null) use ($resolver, $additionalData) {
-                return $resolver(
+            function ($root, array $args, $context = null, $info = null) use ($methodName, $namespacedClassName, $additionalData) {
+                return (new $namespacedClassName)->{$methodName}(
                     $root,
                     array_merge($args, ['directive' => $additionalData]),
                     $context,

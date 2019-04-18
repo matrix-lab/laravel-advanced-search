@@ -10,10 +10,9 @@ use Nuwave\Lighthouse\Schema\AST\PartialParser;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
+use Nuwave\Lighthouse\Schema\Directives\NamespaceDirective;
 use Nuwave\Lighthouse\Support\Contracts\NodeManipulator;
-use Nuwave\Lighthouse\Schema\Directives\Fields\NamespaceDirective;
-use Nuwave\Lighthouse\Schema\Directives\Fields\MiddlewareDirective;
-use Nuwave\Lighthouse\Schema\Directives\Nodes\GroupDirective as LighthouseGroupDirective;
+use Nuwave\Lighthouse\Schema\Directives\GroupDirective as LighthouseGroupDirective;
 
 /**
  * Class GroupDirective.

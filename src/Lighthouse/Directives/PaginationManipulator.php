@@ -9,10 +9,12 @@ use Nuwave\Lighthouse\Schema\AST\PartialParser;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
 use MatrixLab\LaravelAdvancedSearch\Lighthouse\Types\PaginatorField;
-use Nuwave\Lighthouse\Schema\Directives\Fields\PaginationManipulator as BasePaginationManipulator;
+use Nuwave\Lighthouse\Schema\Directives\PaginationManipulator as BasePaginationManipulator;
 
-class PaginationManipulator extends BasePaginationManipulator
+class PaginationManipulator
 {
+    const PAGINATION_TYPE_PAGINATOR = 'paginator';
+
     /**
      * Transform the definition for a field to a field with pagination.
      *
@@ -31,13 +33,7 @@ class PaginationManipulator extends BasePaginationManipulator
      */
     public static function transformToPaginatedField(string $paginationType, FieldDefinitionNode $fieldDefinition, ObjectTypeDefinitionNode $parentType, DocumentAST $current, int $defaultCount = null): DocumentAST
     {
-        switch (self::assertValidPaginationType($paginationType)) {
-            case self::PAGINATION_TYPE_CONNECTION:
-                return self::registerConnection($fieldDefinition, $parentType, $current, $defaultCount);
-            case self::PAGINATION_TYPE_PAGINATOR:
-            default:
-                return self::registerPaginator($fieldDefinition, $parentType, $current, $defaultCount);
-        }
+        return self::registerPaginator($fieldDefinition, $parentType, $current, $defaultCount);
     }
 
     /**
