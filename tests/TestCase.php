@@ -3,9 +3,9 @@
 namespace Tests;
 
 use MatrixLab\LaravelAdvancedSearch\AdvancedSearchServiceProvider;
+use Nuwave\Lighthouse\LighthouseServiceProvider;
 use Orchestra\Database\ConsoleServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
-use Nuwave\Lighthouse\Providers\LighthouseServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {

@@ -31,8 +31,6 @@ class OrderSearchTest extends DBTestCase
         $list = Company::getList([
             'order' => 'name',
         ]);
-
-        dd($list->pluck('name'));
     }
 
     public function test_operator_not_in()
