@@ -28,23 +28,25 @@ class OrderSearchTest extends DBTestCase
 
     public function test_operator_in()
     {
-        $list = Company::getList([
-            'order' => 'name',
-        ]);
+        $this->assertEquals(1, Company::getList([
+            'wheres' => [
+                'name.in' => ['a', 'e'],
+            ],
+        ])->count());
     }
 
     public function test_operator_not_in()
     {
-        $this->assertEquals(10, Company::getList([
+        $this->assertEquals(2, Company::getList([
             'wheres' => [
-                'name.not_in' => ['foooo', 'barrr'],
+                'name.not_in' => ['a', 'e'],
             ],
         ])->count());
     }
 
     public function test_operator_is()
     {
-        $this->assertEquals(1, Company::getList([
+        $this->assertEquals(0, Company::getList([
             'wheres' => [
                 'name.is' => 'null',
             ],
@@ -53,7 +55,7 @@ class OrderSearchTest extends DBTestCase
 
     public function test_operator_is_not()
     {
-        $this->assertEquals(12, Company::getList([
+        $this->assertEquals(3, Company::getList([
             'wheres' => [
                 'name.is_not' => 'null',
             ],

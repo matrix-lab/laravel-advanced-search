@@ -2,7 +2,6 @@
 
 namespace MatrixLab\LaravelAdvancedSearch\Lighthouse\Directives;
 
-use App\Models\BaseModel;
 use Illuminate\Support\Str;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
 use GraphQL\Language\AST\FieldDefinitionNode;
@@ -93,7 +92,6 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
                     'paginator.sorts' => $this->directiveArgValue('sorts'),
                 ])->merge($args)->filter()->toArray();
 
-                /** @var BaseModel $model */
                 $model = $this->getPaginatorModel();
 
                 return $model::getGraphQLPaginator($this->getConditions($args), func_get_args()[3]);

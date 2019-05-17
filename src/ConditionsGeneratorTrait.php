@@ -130,7 +130,7 @@ trait ConditionsGeneratorTrait
             ->filter()
             ->mapWithKeys(function ($item, $key) use ($args) {
                 return $this->generateWhereKeyValue($item, $key);
-            });
+            })->all();
 
         return collect($this->conditions);
     }
