@@ -90,10 +90,10 @@ class PaginationManipulator
         $fieldDefinition->type = PartialParser::namedType($paginatorTypeName);
         $parentType->fields = ASTHelper::mergeNodeList($parentType->fields, [$fieldDefinition]);
 
-        $documentAST->setDefinition($paginatorType);
-        $documentAST->setDefinition($parentType);
-        $documentAST->setDefinition($paginationCursor);
-        $documentAST->setDefinition($paginatorInput);
+        $documentAST->setTypeDefinition($paginatorType);
+        $documentAST->setTypeDefinition($parentType);
+        $documentAST->setTypeDefinition($paginationCursor);
+        $documentAST->setTypeDefinition($paginatorInput);
 
         return $documentAST;
     }

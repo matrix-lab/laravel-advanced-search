@@ -10,12 +10,14 @@ use Nuwave\Lighthouse\Schema\Values\FieldValue;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
+use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
 use MatrixLab\LaravelAdvancedSearch\ConditionsGeneratorTrait;
 
-class GetlistDirective extends BaseDirective implements FieldResolver, FieldManipulator
+class GetlistDirective extends BaseDirective implements FieldResolver, FieldManipulator, DefinedDirective
 {
+
     use ConditionsGeneratorTrait;
 
     /**
@@ -28,30 +30,45 @@ class GetlistDirective extends BaseDirective implements FieldResolver, FieldMani
         return 'getlist';
     }
 
+    public static function definition(): string
+    {
+        return /* @lang GraphQL */ <<<'SDL'
+"""
+Query multiple entries as a paginated list.
+"""
+directive @getlist(
+  """
+  Reference a function to customize the complexity score calculation.
+  Consists of two parts: a class name and a method name, seperated by an `@` symbol.
+  If you pass only a class name, the method name defaults to `__invoke`.
+  """
+  resolver: String
+) on FIELD_DEFINITION
+SDL;
+    }
+
     /**
-     * @param FieldDefinitionNode $fieldDefinition
-     * @param ObjectTypeDefinitionNode $parentType
-     * @param DocumentAST $current
+     * @param  FieldDefinitionNode  $fieldDefinition
+     * @param  ObjectTypeDefinitionNode  $parentType
+     * @param  DocumentAST  $current
      *
      * @return DocumentAST
      * @throws DirectiveException
      * @throws \Nuwave\Lighthouse\Exceptions\ParseException
      */
-    public function manipulateSchema(FieldDefinitionNode $fieldDefinition, ObjectTypeDefinitionNode $parentType, DocumentAST $current): DocumentAST
-    {
-        return PaginationManipulator::transformToPaginatedField(
-            $this->getPaginationType(),
-            $fieldDefinition,
-            $parentType,
-            $current,
-            $this->directiveArgValue('defaultCount')
-        );
+    public function manipulateFieldDefinition(
+            DocumentAST &$documentAST,
+            FieldDefinitionNode &$fieldDefinition,
+            ObjectTypeDefinitionNode &$parentType
+    ): void {
+        PaginationManipulator::transformToPaginatedField($this->getPaginationType(), $fieldDefinition, $parentType,
+                $documentAST, $this->directiveArgValue('defaultCount'));
     }
 
     /**
      * Resolve the field directive.
      *
-     * @param FieldValue $fieldValue
+     * @param  FieldValue  $fieldValue
      *
      * @return FieldValue
      * @throws DirectiveException
