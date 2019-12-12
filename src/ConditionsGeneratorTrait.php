@@ -128,7 +128,7 @@ trait ConditionsGeneratorTrait
         // 遍历 where 配置，生成 getList 所需要的 where 结构
         $this->conditions['wheres'] = collect($this->conditions['wheres'])
             ->filter(function($item) {
-                return $item !== null;
+                return $item !== null && $item !== [];
             })
             ->mapWithKeys(function ($item, $key) {
                 return $this->generateWhereKeyValue($item, $key);
