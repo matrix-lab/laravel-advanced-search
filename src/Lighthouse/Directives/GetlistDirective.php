@@ -107,7 +107,9 @@ SDL;
                 $args = collect([
                     'paginator.sort'  => $this->directiveArgValue('sort'),
                     'paginator.sorts' => $this->directiveArgValue('sorts'),
-                ])->merge($args)->filter()->toArray();
+                ])->merge($args)->filter(function($item) {
+                    return $item !== null;
+                })->toArray();
 
                 $model = $this->getPaginatorModel();
 
