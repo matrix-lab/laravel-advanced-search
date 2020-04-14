@@ -3,6 +3,7 @@
 namespace MatrixLab\LaravelAdvancedSearch;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Query\Expression;
 
@@ -39,8 +40,8 @@ trait ConditionsGeneratorTrait
     public function appendConditions($appendItems)
     {
         // 合并到 wheres
-        $this->conditions['wheres'] = array_merge($this->conditions['wheres'], array_get($appendItems, 'wheres', []));
-        array_forget($appendItems, 'wheres');
+        $this->conditions['wheres'] = array_merge($this->conditions['wheres'], Arr::get($appendItems, 'wheres', []));
+        Arr::forget($appendItems, 'wheres');
 
         // 追加数据到根节点
         $this->conditions = array_merge($this->conditions, $appendItems);
@@ -197,11 +198,11 @@ trait ConditionsGeneratorTrait
     {
         // 处理页码和分页
         foreach ($this->getPageAlias() as $key => $value) {
-            if (array_has($this->inputArgs, $key)) {
+            if (Arr::has($this->inputArgs, $key)) {
                 $this->appendConditions([
                     $value => $this->getInputArgs($key),
                 ]);
-                array_forget($this->inputArgs, $key);
+                Arr::forget($this->inputArgs, $key);
             }
         }
 
@@ -211,15 +212,15 @@ trait ConditionsGeneratorTrait
 
         // 处理排序
         $sorts = [];
-        if (array_has($this->inputArgs, 'paginator.sort')) {
-            $sorts = array_merge($sorts, [$this->getInputArgs('paginator.sort')]);
-            array_forget($this->inputArgs, 'paginator.sort');
+        if (Arr::has($this->inputArgs, 'paginator.sort')) {
+            $sorts = array_merge([$this->getInputArgs('paginator.sort')], $sorts);
+            Arr::forget($this->inputArgs, 'paginator.sort');
         }
-        if (array_has($this->inputArgs, 'paginator.sorts')) {
-            $sorts = array_merge($sorts, $this->getInputArgs('paginator.sorts'));
-            array_forget($this->inputArgs, 'paginator.sorts');
+        if (Arr::has($this->inputArgs, 'paginator.sorts')) {
+            $sorts = array_merge($this->getInputArgs('paginator.sorts'), $sorts);
+            Arr::forget($this->inputArgs, 'paginator.sorts');
         }
-        $sorts = collect($sorts)->filter();
+        $sorts = collect(array_values(array_unique($sorts)))->filter();
         $sorts = collect($this->order())->merge($sorts);
         $orders = [];
         foreach ($sorts as $sort) {
@@ -227,7 +228,7 @@ trait ConditionsGeneratorTrait
                 if (! starts_with($sort, ['+', '-'])) {
                     continue;
                 }
-                $orders[substr($sort, 1)] = $sort[0] == '+' ? 'asc' : 'desc';
+                $orders[substr($sort, 1)] = strpos($sort, '+') === 0 ? 'asc' : 'desc';
             }
 
             if ($sort instanceof Expression) {
@@ -335,7 +336,7 @@ trait ConditionsGeneratorTrait
      */
     public function getInputArgs($key = null, $default = null)
     {
-        return is_null($key) ? $this->inputArgs : array_get($this->inputArgs, $key, $default);
+        return is_null($key) ? $this->inputArgs : Arr::get($this->inputArgs, $key, $default);
     }
 
     /**
@@ -347,9 +348,9 @@ trait ConditionsGeneratorTrait
      */
     protected function isVaildInput($requestKey)
     {
-        return array_has($this->inputArgs, $requestKey)
-            && array_get($this->inputArgs, $requestKey) !== null
-            && array_get($this->inputArgs, $requestKey) !== '';
+        return Arr::has($this->inputArgs, $requestKey)
+            && Arr::get($this->inputArgs, $requestKey) !== null
+            && Arr::get($this->inputArgs, $requestKey) !== '';
     }
 
     /**

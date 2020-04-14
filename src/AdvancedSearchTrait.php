@@ -3,6 +3,7 @@
 namespace MatrixLab\LaravelAdvancedSearch;
 
 use Closure;
+use Illuminate\Support\Arr;
 use ReflectionClass;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -95,7 +96,7 @@ trait AdvancedSearchTrait
         $query = static::getListQuery($conditions, $with, $withTrashed);
 
         // 根据请求中是否存在 page 参数来返回 collection | paginator
-        if (array_has($conditions, 'page')) {
+        if (Arr::has($conditions, 'page')) {
             /* @var Builder $query */
             return $query->paginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(request()->except([
                 'page',
@@ -121,7 +122,7 @@ trait AdvancedSearchTrait
         $query = static::getListQuery($conditions, $with, $withTrashed);
 
         // 根据请求中是否存在 page 参数来返回 collection | paginator
-        if (array_has($conditions, 'page')) {
+        if (Arr::has($conditions, 'page')) {
             /* @var Builder $query */
             return $query->simplePaginate((int) (self::getPageSize($conditions)), $selects, 'page', $conditions['page'])->appends(request()->except([
                 'page',
@@ -180,12 +181,12 @@ trait AdvancedSearchTrait
     private static function simpleLikeSearch($query, $conditions)
     {
         $keyword = '';
-        if (array_has($conditions, 'keyword')) {
-            $keyword = array_get($conditions, 'keyword', '');
-        } elseif (array_has($conditions, 'search')) {
-            $keyword = array_get($conditions, 'search', '');
-        } elseif (array_has($conditions, 'key')) {
-            $keyword = array_get($conditions, 'key', '');
+        if (Arr::has($conditions, 'keyword')) {
+            $keyword = Arr::get($conditions, 'keyword', '');
+        } elseif (Arr::has($conditions, 'search')) {
+            $keyword = Arr::get($conditions, 'search', '');
+        } elseif (Arr::has($conditions, 'key')) {
+            $keyword = Arr::get($conditions, 'key', '');
         }
 
         if ($keyword) {
@@ -212,12 +213,12 @@ trait AdvancedSearchTrait
         foreach ($wheres as $where) {
             if (is_array($where)) {
                 foreach ($where as $field => $operatorAndValue) {
-                    $mixType = array_get($operatorAndValue, 'mix', 'and');
+                    $mixType = Arr::get($operatorAndValue, 'mix', 'and');
                     unset($operatorAndValue['mix']);
 
                     // 关联查询
                     if (str_contains($field, '.')) {
-                        list($relation, $field) = explode('.', $field);
+                        [$relation, $field] = explode('.', $field);
                         $query->whereHas(camel_case($relation), function ($q) use (
                             $operatorAndValue,
                             $mixType,
@@ -298,7 +299,7 @@ trait AdvancedSearchTrait
     {
         $newConditions = [];
 
-        foreach (array_get($conditions, 'wheres', []) as $key => $item) {
+        foreach (Arr::get($conditions, 'wheres', []) as $key => $item) {
             if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
                 $newConditions[] = $item;
                 continue;
@@ -361,7 +362,7 @@ trait AdvancedSearchTrait
         $order = isset($conditions['order']) ? $conditions['order'] : [];
         if (is_string($order)) {
             $order = [
-                $order => array_get($conditions, 'direction', 'desc'),
+                $order => Arr::get($conditions, 'direction', 'desc'),
             ];
         }
 
@@ -399,7 +400,7 @@ trait AdvancedSearchTrait
             if (is_array($having)) {
                 foreach ($having as $field => $operatorAndValue) {
                     $having_raws = [];
-                    $mixType = array_get($operatorAndValue, 'mix', 'and');
+                    $mixType = Arr::get($operatorAndValue, 'mix', 'and');
                     unset($operatorAndValue['mix']);
 
                     foreach ($operatorAndValue as $operator => $value) {
@@ -431,7 +432,7 @@ trait AdvancedSearchTrait
     {
         $newConditions = [];
 
-        foreach (array_get($conditions, 'having', []) as $key => $item) {
+        foreach (Arr::get($conditions, 'having', []) as $key => $item) {
             if (is_int($key)) {
                 // 如果是闭包的话，直接 push ，不做处理，构造时进行处理
                 if ($item instanceof Closure || $item instanceof Expression || $item instanceof ModelScope) {
@@ -476,8 +477,8 @@ trait AdvancedSearchTrait
      */
     private static function offsetSearch($query, $conditions)
     {
-        $offset = array_has($conditions, 'offset') ? $conditions['offset'] : 0;
-        $limit = array_has($conditions, 'limit') ? $conditions['limit'] : 0;
+        $offset = Arr::has($conditions, 'offset') ? $conditions['offset'] : 0;
+        $limit = Arr::has($conditions, 'limit') ? $conditions['limit'] : 0;
         if ($limit > 0) {
             $query->skip((int) $offset)->take((int) $limit);
         }
@@ -494,8 +495,8 @@ trait AdvancedSearchTrait
     {
         $pageSize = request()->has('pageSize') ? request('pageSize') : config('erp.page_size');
         $pageSize = request()->has('page_size') ? request('page_size') : $pageSize;
-        $pageSize = array_has($conditions, 'pageSize') ? $conditions['pageSize'] : $pageSize;
-        $pageSize = array_has($conditions, 'page_size') ? $conditions['page_size'] : $pageSize;
+        $pageSize = Arr::has($conditions, 'pageSize') ? $conditions['pageSize'] : $pageSize;
+        $pageSize = Arr::has($conditions, 'page_size') ? $conditions['page_size'] : $pageSize;
 
         return $pageSize;
     }

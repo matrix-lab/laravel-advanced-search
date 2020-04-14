@@ -2,6 +2,7 @@
 
 namespace MatrixLab\LaravelAdvancedSearch;
 
+use Illuminate\Support\Arr;
 use ReflectionClass;
 use Illuminate\Database\Eloquent\Model;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -20,12 +21,12 @@ trait WithAndSelectForGraphQLGeneratorTrait
         $fields = $info->getFieldSelection(5);
 
         // 如果没有 total 则返回简单分页
-        if (! array_has($fields, 'cursor.total')) {
+        if (! Arr::has($fields, 'cursor.total')) {
             return static::getSimpleList($conditions, ...static::getWithAndSelect($info));
         }
 
         // 如果有查询内容的话
-        if (array_has($fields, 'items')) {
+        if (Arr::has($fields, 'items')) {
             return static::getList($conditions, ...static::getWithAndSelect($info));
         }
 
