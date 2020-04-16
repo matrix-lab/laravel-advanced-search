@@ -221,20 +221,22 @@ trait ConditionsGeneratorTrait
             Arr::forget($this->inputArgs, 'paginator.sorts');
         }
         $sorts = collect(array_values(array_unique($sorts)))->filter();
-        $sorts = collect($this->order())->merge($sorts);
+        $sorts = collect($sorts)->merge($this->order());
         $orders = [];
         foreach ($sorts as $sort) {
             if (is_string($sort)) {
                 if (! starts_with($sort, ['+', '-'])) {
                     continue;
                 }
-                $orders[substr($sort, 1)] = strpos($sort, '+') === 0 ? 'asc' : 'desc';
+                $field = substr($sort, 1);
+                $orders[$field] = !array_key_exists($field, $orders) && strpos($sort, '+') === 0 ? 'asc' : 'desc';
             }
 
             if ($sort instanceof Expression) {
                 $orders[] = $sort;
             }
         }
+
         $this->appendConditions(['order' => $orders]);
 
         return $this;

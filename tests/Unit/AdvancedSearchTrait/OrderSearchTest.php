@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\AdvancedSearchTrait;
 
 use MatrixLab\LaravelAdvancedSearch\ModelScope;
 use Tests\DBTestCase;
