@@ -36,4 +36,17 @@ class HandlePaginate extends DBTestCase
             'id' => 'asc',
         ], Arr::get($conditions, 'order'));
     }
+
+    public function test_fireInput()
+    {
+        $fakeRequest = new FakeRequest();
+
+        $conditions = $fakeRequest->getConditions([
+            'empty_array_field' => []
+        ]);
+
+        $this->assertEquals([
+            'id' => 'asc',
+        ], Arr::get($conditions, 'order'));
+    }
 }

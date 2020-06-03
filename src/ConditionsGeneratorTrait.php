@@ -351,6 +351,7 @@ trait ConditionsGeneratorTrait
     protected function isVaildInput($requestKey)
     {
         return Arr::has($this->inputArgs, $requestKey)
+            && Arr::get($this->inputArgs, $requestKey) !== []
             && Arr::get($this->inputArgs, $requestKey) !== null
             && Arr::get($this->inputArgs, $requestKey) !== '';
     }
