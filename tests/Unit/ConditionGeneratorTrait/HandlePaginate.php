@@ -27,6 +27,20 @@ class HandlePaginate extends DBTestCase
         ], Arr::get($conditions, 'order'));
     }
 
+    public function test_over_default_sort()
+    {
+        $fakeRequest = new FakeRequest();
+        $conditions = $fakeRequest->getConditions([
+            'paginator' => [
+                'sort' => '-id',
+            ],
+        ]);
+
+        $this->assertEquals([
+            'id' => 'desc',
+        ], Arr::get($conditions, 'order'));
+    }
+
     public function test_order()
     {
         $fakeRequest = new FakeRequest();

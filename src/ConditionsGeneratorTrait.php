@@ -229,7 +229,9 @@ trait ConditionsGeneratorTrait
                     continue;
                 }
                 $field = substr($sort, 1);
-                $orders[$field] = !array_key_exists($field, $orders) && strpos($sort, '+') === 0 ? 'asc' : 'desc';
+                if (! array_key_exists($field, $orders)) {
+                    $orders[$field] = strpos($sort, '+') === 0 ? 'asc' : 'desc';
+                }
             }
 
             if ($sort instanceof Expression) {
