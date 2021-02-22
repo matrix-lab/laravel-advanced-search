@@ -88,7 +88,7 @@ class PaginationManipulator
         ');
 
         $fieldDefinition->type = Parser::namedType($paginatorTypeName);
-        $parentType->fields = ASTHelper::mergeNodeList($parentType->fields, [$fieldDefinition], true);
+        $parentType->fields = ASTHelper::mergeUniqueNodeList($parentType->fields, [$fieldDefinition], true);
 
         $documentAST->setTypeDefinition($paginatorType);
         $documentAST->setTypeDefinition($parentType);
