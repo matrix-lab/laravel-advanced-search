@@ -2,10 +2,10 @@
 
 namespace MatrixLab\LaravelAdvancedSearch\Lighthouse\Directives;
 
+use \GraphQL\Language\Parser;
 use Nuwave\Lighthouse\Schema\AST\ASTHelper;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
-use Nuwave\Lighthouse\Schema\AST\PartialParser;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use Nuwave\Lighthouse\Exceptions\DirectiveException;
 use MatrixLab\LaravelAdvancedSearch\Lighthouse\Types\PaginatorField;
@@ -54,7 +54,7 @@ class PaginationManipulator
         $paginatorFieldClassName = addslashes(PaginatorField::class);
 
         // register paginator.
-        $paginatorType = PartialParser::objectTypeDefinition("
+        $paginatorType = Parser::objectTypeDefinition("
             type $paginatorTypeName {
                 items: [$fieldTypeName] @field(resolver: \"{$paginatorFieldClassName}@dataResolver\")
                 cursor: PaginationCursor! @field(resolver: \"{$paginatorFieldClassName}@paginatorInfoResolver\")
@@ -62,7 +62,7 @@ class PaginationManipulator
         ");
 
         // register Pagination Cursor object.
-        $paginationCursor = PartialParser::objectTypeDefinition('
+        $paginationCursor = Parser::objectTypeDefinition('
             """Paginator input type"""
             type PaginationCursor {
                 total: Int!
@@ -73,7 +73,7 @@ class PaginationManipulator
         ');
 
         // register Paginator Input object.
-        $paginatorInput = PartialParser::inputObjectTypeDefinition('
+        $paginatorInput = Parser::inputObjectTypeDefinition('
             """Paginator input type"""
             input PaginatorInput {
                 """Display a specific page"""
@@ -87,8 +87,8 @@ class PaginationManipulator
             }
         ');
 
-        $fieldDefinition->type = PartialParser::namedType($paginatorTypeName);
-        $parentType->fields = ASTHelper::mergeNodeList($parentType->fields, [$fieldDefinition]);
+        $fieldDefinition->type = Parser::namedType($paginatorTypeName);
+        $parentType->fields = ASTHelper::mergeNodeList($parentType->fields, [$fieldDefinition], true);
 
         $documentAST->setTypeDefinition($paginatorType);
         $documentAST->setTypeDefinition($parentType);

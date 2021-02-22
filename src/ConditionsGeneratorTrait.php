@@ -225,7 +225,7 @@ trait ConditionsGeneratorTrait
         $orders = [];
         foreach ($sorts as $sort) {
             if (is_string($sort)) {
-                if (! starts_with($sort, ['+', '-'])) {
+                if (! \Str::startsWith($sort, ['+', '-'])) {
                     continue;
                 }
                 $field = substr($sort, 1);

@@ -15,7 +15,7 @@ use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
 use MatrixLab\LaravelAdvancedSearch\ConditionsGeneratorTrait;
 
-class GetlistDirective extends BaseDirective implements FieldResolver, FieldManipulator, DefinedDirective
+class GetlistDirective extends BaseDirective implements FieldResolver, FieldManipulator
 {
 
     use ConditionsGeneratorTrait;
