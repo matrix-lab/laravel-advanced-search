@@ -4,6 +4,7 @@ namespace MatrixLab\LaravelAdvancedSearch;
 
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -279,7 +280,7 @@ trait AdvancedSearchTrait
                 }
             } elseif ('is' == $operator) {
                 $q->{"{$whereType}null"}($field);
-            } elseif ('is_not' == snake_case($operator)) {
+            } elseif ('is_not' == Str::snake($operator)) {
                 $q->{"{$whereType}NotNull"}($field);
             } else {
                 $q->{$whereType}($field, self::convertOperator($operator), $value);
